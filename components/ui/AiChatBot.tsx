@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 interface Messages {
@@ -11,6 +11,14 @@ const AiChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Messages[]>([]);
   const [userMessage, setUserMessage] = useState("");
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   // Function to toggle chatbot visibility
   const toggleChatBot = () => {
@@ -84,7 +92,10 @@ const AiChatBot = () => {
           </div>
 
           {/* Chat Body (messages display) */}
-          <div className="p-4 text-dark-a0 flex-grow overflow-y-auto">
+          <div
+            ref={chatContainerRef}
+            className="p-4 text-dark-a0 flex-grow overflow-y-auto"
+          >
             {messages.map((msg, idx) => (
               <div
                 key={idx}
