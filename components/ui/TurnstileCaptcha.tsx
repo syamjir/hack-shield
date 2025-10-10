@@ -1,8 +1,10 @@
 "use client";
 
 import { Turnstile } from "@marsidev/react-turnstile";
+import { useRouter } from "next/navigation";
 
 export default function TurnstileCaptcha() {
+  const router = useRouter();
   async function verifyToken(token: string) {
     try {
       const response = await fetch("/api/verify-turnstile", {
@@ -12,6 +14,11 @@ export default function TurnstileCaptcha() {
       });
       const data = await response.json();
       console.log("Verification result:", data);
+      if (data.success) {
+        router.push("/home");
+      } else {
+        alert("CAPTCHA verification failed. Please try again.");
+      }
     } catch (err) {
       console.error("Turnstile verification failed:", err);
     }
