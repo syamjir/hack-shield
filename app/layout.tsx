@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/ui/ModeToggle";
+import AiChatBot from "@/components/ui/AiChatBot";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased  `}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased p-1 md:p-0  `}
       >
         <ThemeProvider
           attribute="class"
@@ -35,8 +36,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="absolute top-4 right-4 z-50">
+          <div className="fixed top-4 right-4 z-100">
             <ModeToggle />
+          </div>
+          <div className="fixed bottom-5 right-5 z-50">
+            <AiChatBot />
           </div>
           {children}
         </ThemeProvider>
