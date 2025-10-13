@@ -1,6 +1,9 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { Spinner } from "@/components/ui/spinner";
 
 interface Messages {
   role: string;
@@ -11,6 +14,7 @@ const AiChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Messages[]>([]);
   const [userMessage, setUserMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -37,7 +41,8 @@ const AiChatBot = () => {
 
     try {
       // Send a POST request to your API route for AI response
-      const res = await fetch("/api/chat", {
+      setIsLoading(true);
+      const res = await fetch("/api/chatbot", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,6 +57,7 @@ const AiChatBot = () => {
         ...prev,
         { role: "assistant", content: data.message },
       ]);
+      setIsLoading(false);
     } catch (error) {
       console.error("Error interacting with AI:", error);
       setMessages((prev) => [
@@ -61,6 +67,8 @@ const AiChatBot = () => {
           content: "Sorry, I am having trouble... Please try again later.",
         },
       ]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -106,14 +114,17 @@ const AiChatBot = () => {
                 <div
                   className={`p-2 rounded-lg ${
                     msg.role === "user"
-                      ? "bg-surface-tonal-a20 dark:bg-surface-a40"
-                      : "bg-surface-tonal-a30 dark:bg-surface-a50"
+                      ? "bg-surface-tonal-a20 dark:bg-surface-a50"
+                      : "bg-surface-tonal-a30 dark:bg-surface-a40"
                   }`}
                 >
-                  {msg.content}
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {msg.content}
+                  </ReactMarkdown>
                 </div>
               </div>
             ))}
+            {isLoading && <Spinner className="size-6 text-surface-tonal-a50" />}
           </div>
 
           {/* User Input Form */}
@@ -130,6 +141,7 @@ const AiChatBot = () => {
             />
             <Button
               type="submit"
+              disabled={isLoading}
               className="ml-2 bg-primary-a20 hover:bg-primary-a10 text-both-white-a0 px-4 py-2 rounded-md"
             >
               Send
