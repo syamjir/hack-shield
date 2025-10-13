@@ -15,7 +15,7 @@ export default function TurnstileCaptcha() {
       const data = await response.json();
       console.log("Verification result:", data);
       if (data.success) {
-        router.push("/home");
+        router.push("/welcome");
       } else {
         alert("CAPTCHA verification failed. Please try again.");
       }
