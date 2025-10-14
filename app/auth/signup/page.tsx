@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Shield, Mail, Smartphone, UserPlus } from "lucide-react";
+import { Shield, Mail, Smartphone, UserPlus, EyeOff, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,7 @@ export default function SignupPage() {
   >(null);
   const [form, setForm] = useState<Form>({ email: "", password: "" });
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const validation = new SignupValidation(form, confirmPassword);
 
@@ -90,7 +91,7 @@ export default function SignupPage() {
           />
           {/* Password Error */}
           {!validation.passwordValid() && form.password && (
-            <motion.p
+            <motion.div
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
@@ -105,16 +106,27 @@ export default function SignupPage() {
                 <li>Include a number</li>
                 <li>Include a special character (e.g., !@#$%)</li>
               </ul>
-            </motion.p>
+            </motion.div>
           )}
-          <Input
-            type="password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-            placeholder="Password"
-            className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-0.5 focus-visible:ring-primary-a0"
-          />
+          <div className="relative">
+            <Input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="Password"
+              className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 pr-10 outline-none focus-visible:ring-0.5 focus-visible:ring-primary-a0"
+            />
+
+            {/* Toggle Icon */}
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-dark-a0/50 hover:text-primary-a10/90 bg-surface-tonal-a0 rounded-2xl  p-0.5"
+            >
+              {showPassword ? <EyeOff className="text-primary-a0" size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
           {/* Error Message */}
           {!validation.passwordMatch() && confirmPassword && (
             <motion.p
