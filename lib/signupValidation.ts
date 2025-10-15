@@ -4,10 +4,12 @@ export class SignupValidation {
   private email: string;
   private password: string;
   private confirmPassword: string;
+  private phone: string;
 
   constructor(form: Form, confirmPassword: string) {
     this.email = form.email;
     this.password = form.password;
+    this.phone = form.phone;
     this.confirmPassword = confirmPassword;
   }
   passwordMatch(): boolean {
@@ -30,5 +32,11 @@ export class SignupValidation {
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return passwordRegex.test(this.password);
+  }
+
+  // 📞 Validate phone number
+  phoneValid(): boolean {
+    const phoneRegex = /^[6-9]\d{9}$/;
+    return phoneRegex.test(this.phone);
   }
 }
