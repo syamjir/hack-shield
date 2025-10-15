@@ -5,7 +5,7 @@ import crypto from "crypto";
 export interface IUser extends Document {
   email: string;
   password: string;
-  phone?: string;
+  phone: string;
   twoFactorMethod: "email" | "phone";
   twoFactorVerified: boolean;
   verificationCode?: string;
@@ -14,6 +14,8 @@ export interface IUser extends Document {
   updatedAt: Date;
 
   comparePassword(password: string): Promise<boolean>;
+  createVerificationCode(): string;
+  verifyVerificationCode(): boolean;
 }
 
 const UserSchema: Schema<IUser> = new Schema(
