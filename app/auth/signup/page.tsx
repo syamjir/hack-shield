@@ -11,6 +11,7 @@ import { SignupValidation } from "@/lib/signupValidation";
 export interface Form {
   email: string;
   password: string;
+  phone: string;
 }
 
 export default function SignupPage() {
@@ -18,7 +19,11 @@ export default function SignupPage() {
   const [selectedMethod, setSelectedMethod] = useState<
     "email" | "phone" | null
   >(null);
-  const [form, setForm] = useState<Form>({ email: "", password: "" });
+  const [form, setForm] = useState<Form>({
+    email: "",
+    password: "",
+    phone: "",
+  });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
@@ -89,6 +94,27 @@ export default function SignupPage() {
             placeholder="Email"
             className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-0.5 focus-visible:ring-primary-a0"
           />
+          {/* Error Message */}
+          {!validation.phoneValid() && form.phone && (
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="text-sm text-dark-a0/70 flex items-center gap-2 pl-4 m-[-6] "
+            >
+              {/* Optional icon for emphasis */}
+              <Shield size={16} className="text-danger-a10" /> Please enter a
+              valid phone number
+            </motion.p>
+          )}
+          <Input
+            type="text"
+            name="phone"
+            value={form.phone}
+            onChange={handleChange}
+            placeholder="Phone Number"
+            className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-0.5 focus-visible:ring-primary-a0"
+          />
           {/* Password Error */}
           {!validation.passwordValid() && form.password && (
             <motion.div
@@ -108,6 +134,7 @@ export default function SignupPage() {
               </ul>
             </motion.div>
           )}
+
           <div className="relative">
             <Input
               type={showPassword ? "text" : "password"}
@@ -124,7 +151,11 @@ export default function SignupPage() {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-dark-a0/50 hover:text-primary-a10/90 bg-surface-tonal-a0 rounded-2xl  p-0.5"
             >
-              {showPassword ? <EyeOff className="text-primary-a0" size={16} /> : <Eye size={16} />}
+              {showPassword ? (
+                <EyeOff className="text-primary-a0" size={16} />
+              ) : (
+                <Eye size={16} />
+              )}
             </button>
           </div>
           {/* Error Message */}
