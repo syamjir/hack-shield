@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 
 export interface IUser extends Document {
+  _id: string;
   email: string;
   password: string;
   phone: string;
@@ -70,7 +71,7 @@ UserSchema.methods.comparePassword = async function (
 
 // 🧩 Create Verification Code
 UserSchema.methods.createVerificationCode = function (): string {
-  // Example: 6-digit numeric code as string
+  // Generate new 6-digit code and replace existing one
   const verificationCode = crypto.randomInt(100000, 999999).toString();
   this.verificationCode = verificationCode;
   this.verificationExpires = new Date(Date.now() + 5 * 60 * 1000); // code expires in 5 minute
