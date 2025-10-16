@@ -33,11 +33,28 @@ export default function SignupPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     if (form.password !== confirmPassword)
       return alert("Passwords do not match");
     if (!selectedMethod) return alert("Please select a 2FA method");
-    router.push(`/auth/verify-2fa?method=${selectedMethod}`);
+    console.log(form);
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, selectedMethod }),
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error);
+      }
+      const data = await res.json();
+      console.log("Signup success:", data);
+      // Redirect to verify page
+      router.push(`/auth/verify-2fa?method=${selectedMethod}`);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (

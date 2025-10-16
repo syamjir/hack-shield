@@ -1,4 +1,5 @@
 import { connectToMongo } from "@/lib/connectToMongo";
+import { JwtService } from "@/lib/jwtService";
 import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -9,8 +10,9 @@ interface RequestBody {
   selectedMethod: "email" | "phone";
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest, res: NextResponse) {
   try {
+    // Connect to mongoDB
     await connectToMongo();
     const { email, password, phone, selectedMethod }: RequestBody =
       await req.json();
@@ -25,7 +27,7 @@ export async function POST(req: NextRequest) {
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
-    if (!existingUser) {
+    if (existingUser) {
       return NextResponse.json(
         { error: "User already exists" },
         { status: 400 }
@@ -38,18 +40,19 @@ export async function POST(req: NextRequest) {
     const user = new User({
       email,
       password,
+      phone,
       twoFactorMethod: selectedMethod,
     });
 
     // Generate verification code
     const code = user.createVerificationCode();
-    await user.save();
+    const createdUser = await user.save();
 
     //  TODO: Send code via email or SMS based on twoFactorMethod
-    return NextResponse.json(
-      { message: "Signup successful, , verification code sent" },
-      { status: 201 }
-    );
+
+    // Create response with token cookie
+    const jwtService = new JwtService(createdUser);
+    return jwtService.createSendToken();
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Signup failed" }, { status: 500 });
