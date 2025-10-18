@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/ui/ModeToggle";
 import AiChatBot from "@/components/ui/AiChatBot";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,8 @@ export default function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased p-1 md:p-0  `}
         >
+          {/* For display alert */}
+          <Toaster richColors theme="system" position="top-right" />
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
