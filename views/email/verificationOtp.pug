@@ -1,0 +1,44 @@
+doctype html
+html
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        title #{subject}
+        style.
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f5f3;
+                padding: 20px;
+                color: #333;
+            }
+            .container {
+                background: #ffffff;
+                border-radius: 10px;
+                padding: 25px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            }
+            .otp {
+                font-size: 24px;
+                font-weight: bold;
+                color: #15424E;
+                text-align: center;
+                margin: 20px 0;
+            }
+            .footer {
+                font-size: 12px;
+                text-align: center;
+                color: #999;
+                margin-top: 20px;
+            }
+
+    body
+        .container
+            img(src="https://yourdomain.com/logo.png" alt="PassKeeper Logo" width="100")
+            h2 Hello #{firstName},
+            p You requested a verification code to complete your #{process}.
+            .otp #{otp}
+            p This code will expire in 10 minutes. Please do not share it with anyone.
+            p
+                | If you didn’t request this, you can safely ignore this email.
+            .footer
+                p &copy; #{new Date().getFullYear()} PassKeeper. All rights reserved.
