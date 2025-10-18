@@ -2,7 +2,16 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Shield, Mail, Smartphone, UserPlus, EyeOff, Eye } from "lucide-react";
+import { Toaster, toast } from "sonner";
+import {
+  Shield,
+  Mail,
+  Smartphone,
+  UserPlus,
+  EyeOff,
+  Eye,
+  Loader2,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +35,7 @@ export default function SignupPage() {
   });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const validation = new SignupValidation(form, confirmPassword);
 
@@ -35,9 +45,9 @@ export default function SignupPage() {
 
   const handleSignup = async () => {
     if (form.password !== confirmPassword)
-      return alert("Passwords do not match");
-    if (!selectedMethod) return alert("Please select a 2FA method");
-    console.log(form);
+      return toast.error("Passwords do not match");
+    if (!selectedMethod) return toast.error("Please select a 2FA method");
+    setIsLoading(true);
     try {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
@@ -46,14 +56,19 @@ export default function SignupPage() {
       });
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.error);
+        throw new Error(errorData.error || "Something went wrong");
       }
       const data = await res.json();
-      console.log("Signup success:", data);
+      console.log(data);
+      toast.success("User registered");
       // Redirect to verify page
       router.push(`/auth/verify-2fa?method=${selectedMethod}`);
     } catch (err) {
-      console.error(err);
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -244,7 +259,16 @@ export default function SignupPage() {
               !selectedMethod
             }
           >
-            <UserPlus size={18} /> Continue
+            {isLoading ? (
+              <>
+                {" "}
+                <Loader2 size={18} className="animate-spin" /> Signing up...
+              </>
+            ) : (
+              <>
+                <UserPlus size={18} /> Continue
+              </>
+            )}
           </Button>
         </motion.div>
       </motion.div>
