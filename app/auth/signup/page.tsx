@@ -62,7 +62,9 @@ export default function SignupPage() {
       console.log(data);
       toast.success("User registered");
       // Redirect to verify page
-      router.push(`/auth/verify-2fa?method=${selectedMethod}`);
+      router.push(
+        `/auth/verify-2fa?token=${data.otpToken}&method=${selectedMethod}`
+      );
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Something went wrong";
