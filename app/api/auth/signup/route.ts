@@ -1,4 +1,5 @@
 import { connectToMongo } from "@/lib/connectToMongo";
+import EmailService from "@/lib/emailService";
 import { JwtService } from "@/lib/jwtService";
 import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
@@ -10,14 +11,13 @@ interface RequestBody {
   selectedMethod: "email" | "phone";
 }
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   try {
-    // Connect to mongoDB
     await connectToMongo();
+
     const { email, password, phone, selectedMethod }: RequestBody =
       await req.json();
 
-    // Validate required fields
     if (!email || !password || !phone || !selectedMethod) {
       return NextResponse.json(
         { error: "All fields are required" },
@@ -25,7 +25,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
       );
     }
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return NextResponse.json(
@@ -34,9 +33,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
       );
     }
 
-    // Hash password is automatically done in User pre hook
-
-    // Create user
     const user = new User({
       email,
       password,
@@ -44,15 +40,30 @@ export async function POST(req: NextRequest, res: NextResponse) {
       twoFactorMethod: selectedMethod,
     });
 
-    // Generate verification code
     const code = user.createVerificationCode();
+
+    // Attempt to send the OTP email first
+    const mailService = new EmailService(user, code);
+
+    try {
+      await mailService.sendSignupVerificationOtp();
+    } catch (emailErr) {
+      console.error("Failed to send verification email:", emailErr);
+      return NextResponse.json(
+        { error: "Failed to send verification code" },
+        { status: 500 }
+      );
+    }
+
+    // Save only after OTP successfully sent
     const createdUser = await user.save();
+    const otpToken = new JwtService(createdUser).generateOtpToken();
 
-    //  TODO: Send code via email or SMS based on twoFactorMethod
-
-    // Create response with token cookie
-    const jwtService = new JwtService(createdUser);
-    return jwtService.createSendToken();
+    return NextResponse.json({
+      message:
+        "Verification code sent to your email. Please verify to continue.",
+      otpToken,
+    });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Signup failed" }, { status: 500 });
