@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Github, Linkedin, Shield, KeyRound, Server } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button"; // shadcn button import
+import Image from "next/image";
 
 interface FooterProps {
   onScrollIntoFeatures: () => void;
@@ -20,7 +21,9 @@ export function Footer({ onScrollIntoFeatures }: FooterProps) {
       <footer className="w-full mt-18 bg-surface-a10 backdrop-blur-md text-dark-a0/80 py-12">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
           {/* Brand & tagline */}
+
           <div className="flex flex-col md:flex-row  items-start md:items-center space-y-2 md:space-y-0 md:space-x-3">
+            {/* <Image src="/lock.png" width={32} height={32} alt="brand-logo" /> */}
             <span className="text-2xl font-extrabold text-primary-a20">
               🔐 PassKeeper
             </span>
