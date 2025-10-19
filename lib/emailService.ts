@@ -32,11 +32,12 @@ class EmailService {
   private async sendMailToUser(
     template: string,
     subject: string,
-    process: string
+    purpose: string
   ) {
     const templatePath = path.join(
-      __dirname,
-      "../views/email",
+      process.cwd(),
+      "views",
+      "email",
       `${template}.pug`
     );
     const html = pug.renderFile(templatePath, {
@@ -44,7 +45,7 @@ class EmailService {
       otp: this.otp,
       url: this.url,
       subject,
-      process,
+      purpose,
     });
 
     const mailOptions = {
