@@ -9,9 +9,9 @@ export class JwtService {
     this.user = user;
   }
 
-  private signInToken(id: string, email: string) {
+  private signInToken() {
     return jwt.sign(
-      { id, email },
+      { id: this.user._id, email: this.user.email },
       process.env.JWT_SECRET as jwt.Secret,
       {
         expiresIn: process.env.JWT_EXPIRES_IN,
@@ -19,8 +19,18 @@ export class JwtService {
     );
   }
 
+  generateOtpToken() {
+    return jwt.sign(
+      { id: this.user._id },
+      process.env.JWT_SECRET as jwt.Secret,
+      {
+        expiresIn: process.env.JWT_OTP_TOKEN_EXPIRES_IN,
+      } as jwt.SignOptions
+    );
+  }
+
   createSendToken(): NextResponse {
-    const token = this.signInToken(this.user._id, this.user.email);
+    const token = this.signInToken();
 
     const response = NextResponse.json(
       { message: "Signup successful, , verification code sent", token },
