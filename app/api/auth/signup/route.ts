@@ -1,7 +1,6 @@
 import { connectToMongo } from "@/lib/connectToMongo";
-import EmailService from "@/lib/emailService";
 import { JwtService } from "@/lib/jwtService";
-import SmsService from "@/lib/smsService";
+import { sendOtp } from "@/lib/sendOtp";
 import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -41,18 +40,11 @@ export async function POST(req: NextRequest) {
       twoFactorMethod: selectedMethod,
     });
 
-    const code = user.createVerificationCode();
-
+    // Send otp
     try {
-      if (selectedMethod === "email") {
-        const mailService = new EmailService(user, code);
-        await mailService.sendSignupVerificationOtp();
-      } else if (selectedMethod === "phone") {
-        const smsService = new SmsService(phone, code, "signup");
-        await smsService.sendSms();
-      }
-    } catch (emailErr) {
-      console.error(`Failed to send verification ${selectedMethod}:`, emailErr);
+      await sendOtp(user, "signup", selectedMethod);
+    } catch (err) {
+      console.error(`Failed to send verification ${selectedMethod}:`, err);
       return NextResponse.json(
         { error: `Failed to send verification code to your ${selectedMethod}` },
         { status: 500 }
