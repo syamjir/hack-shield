@@ -17,7 +17,7 @@ export interface IUser extends Document {
 
   comparePassword(password: string): Promise<boolean>;
   createVerificationCode(): string;
-  verifyVerificationCode(): boolean;
+  verifyVerificationCode(inputCode: string): boolean;
 }
 
 const UserSchema: Schema<IUser> = new Schema(
