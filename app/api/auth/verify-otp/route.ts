@@ -19,11 +19,16 @@ export async function POST(req: NextRequest) {
     }
 
     // ✅ Decode JWT token to extract user ID
-    const jwtService = new JwtService();
-    const decoded = await jwtService.decodeJwtToken(token);
-
-    if (!decoded || !decoded.id) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    let decoded;
+    try {
+      const jwtService = new JwtService();
+      decoded = await jwtService.decodeJwtToken(token);
+    } catch (err) {
+      console.error("❌ JWT decode failed:", err);
+      return NextResponse.json(
+        { error: "Invalid or expired token" },
+        { status: 401 }
+      );
     }
 
     // ✅ Find user by ID
