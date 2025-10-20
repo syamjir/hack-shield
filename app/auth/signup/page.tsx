@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 import {
   Shield,
   Mail,
@@ -60,7 +60,7 @@ export default function SignupPage() {
       }
       const data = await res.json();
       console.log(data);
-      toast.success("User registered");
+      toast.success(data.message);
       // Redirect to verify page
       router.push(
         `/auth/verify-2fa?token=${data.otpToken}&method=${selectedMethod}`
@@ -235,7 +235,12 @@ export default function SignupPage() {
             <motion.div whileHover={{ scale: 1.05 }}>
               <Button
                 aria-selected={selectedMethod === "phone"}
-                onClick={() => setSelectedMethod("phone")}
+                // onClick={() => setSelectedMethod("phone")}
+                onClick={() =>
+                  toast.error(
+                    "Phone verification is temporarily unavailable due to DLT registration requirements. Please use email verification for now."
+                  )
+                }
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-shadow ${
                   selectedMethod === "phone"
                     ? "bg-primary-a20/90 text-light-a0 shadow-lg hover:bg-primary-a10"
