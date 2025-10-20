@@ -62,14 +62,14 @@ class EmailService {
   async sendSignupVerificationOtp() {
     await this.sendMailToUser(
       "verificationOtp",
-      "Your PassKeeper verification code (valid for 10 minutes)",
+      "Your PassKeeper verification code (valid for 15 minutes)",
       "signup"
     );
   }
   async sendLoginVerificationOtp() {
     await this.sendMailToUser(
       "verificationOtp",
-      "Your PassKeeper verification code (valid for 10 minutes)",
+      "Your PassKeeper verification code (valid for 15 minutes)",
       "login"
     );
   }
