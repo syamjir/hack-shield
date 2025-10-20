@@ -1,6 +1,7 @@
 import { connectToMongo } from "@/lib/connectToMongo";
 import EmailService from "@/lib/emailService";
 import { JwtService } from "@/lib/jwtService";
+import SmsService from "@/lib/smsService";
 import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -42,15 +43,18 @@ export async function POST(req: NextRequest) {
 
     const code = user.createVerificationCode();
 
-    // Attempt to send the OTP email first
-    const mailService = new EmailService(user, code);
-
     try {
-      await mailService.sendSignupVerificationOtp();
+      if (selectedMethod === "email") {
+        const mailService = new EmailService(user, code);
+        await mailService.sendSignupVerificationOtp();
+      } else if (selectedMethod === "phone") {
+        const smsService = new SmsService(phone, code, "signup");
+        await smsService.sendSms();
+      }
     } catch (emailErr) {
-      console.error("Failed to send verification email:", emailErr);
+      console.error(`Failed to send verification ${selectedMethod}:`, emailErr);
       return NextResponse.json(
-        { error: "Failed to send verification code" },
+        { error: `Failed to send verification code to your ${selectedMethod}` },
         { status: 500 }
       );
     }
@@ -60,8 +64,7 @@ export async function POST(req: NextRequest) {
     const otpToken = new JwtService(createdUser).generateOtpToken();
 
     return NextResponse.json({
-      message:
-        "Verification code sent to your email. Please verify to continue.",
+      message: `Verification code sent to your ${selectedMethod}. Please verify to continue.`,
       otpToken,
     });
   } catch (err) {
