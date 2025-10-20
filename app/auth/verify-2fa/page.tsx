@@ -1,42 +1,109 @@
 "use client";
+
 import { useRouter, useSearchParams } from "next/navigation";
-import { ShieldCheck } from "lucide-react";
+import { KeyRound } from "lucide-react";
 import AuthCard from "@/components/ui/AuthCard";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { motion } from "framer-motion";
 
 export default function Verify2FAPage() {
   const router = useRouter();
-  const method = useSearchParams().get("method");
-  const [otp, setOtp] = useState("");
+  const searchParams = useSearchParams();
+  const method = searchParams.get("method") || "email";
+  const otpToken = searchParams.get("token"); // you can send this to API
 
-  const handleVerify = () => {
-    if (otp === "123456") {
-      router.push("/login");
-    } else {
-      alert("Invalid code");
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+
+  // Handle input change for each OTP box
+  const handleChange = (value: string, index: number) => {
+    if (/^\d*$/.test(value)) {
+      // only allow digits
+      const newOtp = [...otp];
+      newOtp[index] = value;
+      setOtp(newOtp);
+
+      // auto focus next input
+      const nextInput = document.getElementById(`otp-${index + 1}`);
+      if (value && nextInput) (nextInput as HTMLInputElement).focus();
     }
+  };
+
+  const handleVerify = async () => {
+    const enteredOtp = otp.join("");
+    if (enteredOtp.length < 6) {
+      alert("Please enter the 6-digit code");
+      return;
+    }
+
+    try {
+      // Call your API to verify OTP
+      const res = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ otp: enteredOtp, token: otpToken }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("OTP verified successfully");
+        router.push("/auth/login"); // redirect after successful verification
+      } else {
+        throw new Error(data.error || "Invalid OTP");
+      }
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Something went wrong. Try again.";
+      alert(message);
+    }
+  };
+
+  const handleResend = () => {
+    // call resend OTP API
+    alert(`OTP resent to your ${method}`);
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-surface-a0 text-light-a0 px-6">
+      <motion.div
+        className="absolute top-26 left-36 text-primary-a20/40"
+        animate={{ y: [0, 20, 0] }}
+        transition={{ duration: 6, repeat: Infinity }}
+      >
+        <KeyRound size={64} />
+      </motion.div>
       <AuthCard
         title="Verify Your Identity"
         subtitle={`Enter the 6-digit code sent to your ${method}`}
       >
-        <input
-          type="text"
-          maxLength={6}
-          placeholder="Enter OTP"
-          value={otp}
-          onChange={(e) => setOtp(e.target.value)}
-          className="bg-surface-a20 text-light-a0 rounded-md px-3 py-2 outline-none text-center text-lg tracking-widest focus:ring-2 focus:ring-primary-a20"
-        />
+        <div className="flex justify-between gap-2 mb-4">
+          {otp.map((num, idx) => (
+            <input
+              key={idx}
+              id={`otp-${idx}`}
+              type="text"
+              maxLength={1}
+              value={num}
+              onChange={(e) => handleChange(e.target.value, idx)}
+              className="w-12 h-12 bg-surface-a20 text-dark-a0 rounded-md text-center text-xl focus:ring-2 focus:ring-primary-a20"
+            />
+          ))}
+        </div>
+
         <Button
           onClick={handleVerify}
-          className="w-full mt-6 bg-success-a10 hover:bg-success-a20 text-light-a0"
+          className="w-full mt-2 bg-primary-a10 hover:bg-primary-a20 text-light-a0"
         >
           Verify
+        </Button>
+
+        <Button
+          onClick={handleResend}
+          variant="ghost"
+          className="w-full mt-2 text-primary-a10"
+        >
+          Resend Code
         </Button>
       </AuthCard>
     </div>
