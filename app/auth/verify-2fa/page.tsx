@@ -1,19 +1,20 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { KeyRound } from "lucide-react";
+import { CheckCircle, KeyRound, Loader2, Repeat } from "lucide-react";
 import AuthCard from "@/components/ui/AuthCard";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 export default function Verify2FAPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const method = searchParams.get("method") || "email";
-  const otpToken = searchParams.get("token"); // you can send this to API
-
+  const otpToken = searchParams.get("token");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Handle input change for each OTP box
   const handleChange = (value: string, index: number) => {
@@ -32,7 +33,7 @@ export default function Verify2FAPage() {
   const handleVerify = async () => {
     const enteredOtp = otp.join("");
     if (enteredOtp.length < 6) {
-      alert("Please enter the 6-digit code");
+      toast.error("Please enter the 6-digit code");
       return;
     }
 
@@ -47,7 +48,7 @@ export default function Verify2FAPage() {
       const data = await res.json();
 
       if (res.ok) {
-        alert("OTP verified successfully");
+        toast.success("OTP verified successfully");
         router.push("/auth/login"); // redirect after successful verification
       } else {
         throw new Error(data.error || "Invalid OTP");
@@ -55,13 +56,33 @@ export default function Verify2FAPage() {
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Something went wrong. Try again.";
-      alert(message);
+      toast.error(message);
     }
   };
 
-  const handleResend = () => {
-    // call resend OTP API
-    alert(`OTP resent to your ${method}`);
+  const handleResend = async () => {
+    try {
+      setIsLoading(true);
+      // call resend OTP API
+      const res = await fetch("/api/auth/resend-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: otpToken }),
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Something went wrong");
+      }
+      const data = await res.json();
+      console.log(data);
+      toast.success(data.message);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -86,24 +107,43 @@ export default function Verify2FAPage() {
               maxLength={1}
               value={num}
               onChange={(e) => handleChange(e.target.value, idx)}
-              className="w-12 h-12 bg-surface-a20 text-dark-a0 rounded-md text-center text-xl focus:ring-2 focus:ring-primary-a20"
+              className=" w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12  bg-surface-a20 text-dark-a0 rounded-md text-center text-xl focus:ring-2 focus:ring-primary-a20"
             />
           ))}
         </div>
 
         <Button
           onClick={handleVerify}
-          className="w-full mt-2 bg-primary-a10 hover:bg-primary-a20 text-light-a0"
+          className="w-full mt-2 bg-success-a0 hover:bg-success-a10 text-light-a0"
+          disabled={isLoading}
         >
-          Verify
+          {isLoading ? (
+            <>
+              <Loader2 size={18} className="animate-spin" /> Verifying...
+            </>
+          ) : (
+            <>
+              <CheckCircle size={18} /> Verify
+            </>
+          )}
         </Button>
 
         <Button
           onClick={handleResend}
           variant="ghost"
-          className="w-full mt-2 text-primary-a10"
+          className=" mt-2 text-primary-a10"
+          disabled={isLoading}
         >
-          Resend Code
+          {isLoading ? (
+            <>
+              {" "}
+              <Loader2 size={18} className="animate-spin" /> Resending...
+            </>
+          ) : (
+            <>
+              <Repeat size={18} /> Resend Code
+            </>
+          )}
         </Button>
       </AuthCard>
     </div>
