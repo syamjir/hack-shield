@@ -14,7 +14,8 @@ export default function Verify2FAPage() {
   const method = searchParams.get("method") || "email";
   const otpToken = searchParams.get("token");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingVerifyButton, setisLoadingVerifyButton] = useState(false);
+  const [isLoadingResendButton, setisLoadingResendButton] = useState(false);
 
   // Handle input change for each OTP box
   const handleChange = (value: string, index: number) => {
@@ -39,6 +40,7 @@ export default function Verify2FAPage() {
 
     try {
       // Call your API to verify OTP
+      setisLoadingVerifyButton(true);
       const res = await fetch("/api/auth/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -57,12 +59,14 @@ export default function Verify2FAPage() {
       const message =
         err instanceof Error ? err.message : "Something went wrong. Try again.";
       toast.error(message);
+    } finally {
+      setisLoadingVerifyButton(false);
     }
   };
 
   const handleResend = async () => {
     try {
-      setIsLoading(true);
+      setisLoadingResendButton(true);
       // call resend OTP API
       const res = await fetch("/api/auth/resend-otp", {
         method: "POST",
@@ -81,7 +85,7 @@ export default function Verify2FAPage() {
         err instanceof Error ? err.message : "Something went wrong";
       toast.error(message);
     } finally {
-      setIsLoading(false);
+      setisLoadingResendButton(false);
     }
   };
 
@@ -115,9 +119,9 @@ export default function Verify2FAPage() {
         <Button
           onClick={handleVerify}
           className="w-full mt-2 bg-success-a0 hover:bg-success-a10 text-light-a0"
-          disabled={isLoading}
+          disabled={isLoadingResendButton}
         >
-          {isLoading ? (
+          {isLoadingVerifyButton ? (
             <>
               <Loader2 size={18} className="animate-spin" /> Verifying...
             </>
@@ -132,9 +136,9 @@ export default function Verify2FAPage() {
           onClick={handleResend}
           variant="ghost"
           className=" mt-2 text-primary-a10"
-          disabled={isLoading}
+          disabled={isLoadingVerifyButton}
         >
-          {isLoading ? (
+          {isLoadingResendButton ? (
             <>
               {" "}
               <Loader2 size={18} className="animate-spin" /> Resending...
