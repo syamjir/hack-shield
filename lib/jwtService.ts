@@ -5,13 +5,13 @@ import jwt from "jsonwebtoken";
 export class JwtService {
   private user;
 
-  constructor(user: IUser) {
+  constructor(user?: IUser) {
     this.user = user;
   }
 
   private signInToken() {
     return jwt.sign(
-      { id: this.user._id, email: this.user.email },
+      { id: this.user?._id, email: this.user?.email },
       process.env.JWT_SECRET as jwt.Secret,
       {
         expiresIn: process.env.JWT_EXPIRES_IN,
@@ -21,7 +21,7 @@ export class JwtService {
 
   generateOtpToken() {
     return jwt.sign(
-      { id: this.user._id },
+      { id: this.user?._id },
       process.env.JWT_SECRET as jwt.Secret,
       {
         expiresIn: process.env.JWT_OTP_TOKEN_EXPIRES_IN,
@@ -47,7 +47,7 @@ export class JwtService {
     return response;
   }
 
-  async decodeJwtToken(token: string): Promise<{ id: string; email: string }> {
+  async decodeJwtToken(token: string): Promise<{ id: string; email?: string }> {
     return new Promise((resolve, reject) => {
       jwt.verify(
         token,
@@ -61,7 +61,7 @@ export class JwtService {
             id: string;
             email: string;
           };
-          resolve({ id: payload.id, email: payload.email });
+          resolve({ id: payload.id, email: payload?.email });
         }
       );
     });
