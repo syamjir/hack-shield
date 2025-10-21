@@ -33,8 +33,8 @@ export class JwtService {
     const token = this.signInToken();
 
     const response = NextResponse.json(
-      { message: "Signup successful, , verification code sent", token },
-      { status: 201 }
+      { message: "2FA verified — login successful", token },
+      { status: 200 }
     );
     response.cookies.set("jwt", token, {
       httpOnly: true,
