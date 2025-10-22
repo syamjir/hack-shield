@@ -11,7 +11,7 @@ import { LoginValidation } from "@/lib/loginValidation";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [step, setStep] = useState<"login" | "verify">("login");
+  const [step, setStep] = useState<"login" | "verify">("verify");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -221,7 +221,7 @@ export default function LoginPage() {
 
             <Button
               onClick={handleVerify}
-              disabled={isLoading}
+              disabled={isLoading || otp.some((digit) => digit === "")}
               className="w-full mt-6 bg-success-a10 hover:bg-success-a20 text-light-a0 flex items-center justify-center gap-2 rounded-xl"
             >
               {isLoading ? (
