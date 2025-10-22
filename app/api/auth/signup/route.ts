@@ -55,10 +55,13 @@ export async function POST(req: NextRequest) {
     const createdUser = await user.save();
     const otpToken = new JwtService(createdUser).generateOtpToken();
 
-    return NextResponse.json({
-      message: `Verification code sent to your ${selectedMethod}. Please verify to continue.`,
-      otpToken,
-    });
+    return NextResponse.json(
+      {
+        message: `Verification code sent to your ${selectedMethod}. Please verify to continue.`,
+        otpToken,
+      },
+      { status: 200 }
+    );
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Signup failed" }, { status: 500 });
