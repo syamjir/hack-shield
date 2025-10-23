@@ -73,6 +73,7 @@ class EmailService {
       "login"
     );
   }
+  //TODO add reset and verify functions
 }
 
 export default EmailService;
