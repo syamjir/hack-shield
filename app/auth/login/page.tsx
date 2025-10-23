@@ -2,20 +2,32 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Loader2, Lock, LogIn, Shield, ShieldCheck } from "lucide-react";
+import {
+  Loader2,
+  Lock,
+  LogIn,
+  Repeat,
+  Shield,
+  ShieldCheck,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import AuthCard from "@/components/ui/AuthCard";
 import { Input } from "@/components/ui/input";
 import { LoginValidation } from "@/lib/loginValidation";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [step, setStep] = useState<"login" | "verify">("verify");
+  const [step, setStep] = useState<"login" | "verify">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [twoFactorMethod, setTwoFactorMethod] = useState<
+    "email" | "phone" | ""
+  >("");
+  const [isLoadingResendButton, setIsLoadingResendButton] = useState(false);
 
   const validation = new LoginValidation(email, password);
 
@@ -36,7 +48,7 @@ export default function LoginPage() {
   // Step 1: Validate login and send OTP
   const handleLogin = async () => {
     if (!email || !password) {
-      alert("Please enter email & password");
+      toast.error("Please enter email & password");
       return;
     }
 
@@ -53,13 +65,14 @@ export default function LoginPage() {
         throw new Error(data.error || "Something went wrong");
       }
       console.log(data);
-      alert(data.message || "OTP sent successfully!");
+      toast.success(data.message || "OTP sent successfully!");
+      setTwoFactorMethod(data.twoFactorMethod);
       setStep("verify");
     } catch (err) {
       console.error(err);
       const message =
         err instanceof Error ? err.message : "Something went wrong";
-      alert(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -67,17 +80,17 @@ export default function LoginPage() {
 
   // Step 2: Verify OTP
   const handleVerify = async () => {
-    if (!otp) {
-      alert("Please enter OTP code");
+    const enteredOtp = otp.join("");
+    if (!enteredOtp) {
+      toast.error("Please enter OTP code");
       return;
     }
-
     try {
       setIsLoading(true);
       const res = await fetch("/api/auth/verify-login-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp }),
+        body: JSON.stringify({ email, otp: enteredOtp }),
       });
 
       const data = await res.json();
@@ -85,15 +98,40 @@ export default function LoginPage() {
         throw new Error(data.error || "Something went wrong");
       }
       console.log(data);
-      alert(data.message);
+      toast.success(data.message);
       router.push("/home");
     } catch (err) {
       console.error(err);
       const message =
         err instanceof Error ? err.message : "Something went wrong";
-      alert(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    try {
+      setIsLoadingResendButton(true);
+      // call resend OTP API
+      const res = await fetch("/api/auth/resend-login-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Something went wrong");
+      }
+      const data = await res.json();
+      console.log(data);
+      toast.success(data.message);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+      toast.error(message);
+    } finally {
+      setIsLoadingResendButton(false);
     }
   };
 
@@ -198,7 +236,7 @@ export default function LoginPage() {
         // Step 2: OTP Verify
         <AuthCard
           title="Two-Factor Verification 🔐"
-          subtitle="Enter the 6-digit code sent to your email or phone"
+          subtitle={`Enter the 6-digit code sent to your ${twoFactorMethod}`}
         >
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -240,9 +278,9 @@ export default function LoginPage() {
               Didn’t receive code?{" "}
               <span
                 className="text-primary-a20 cursor-pointer hover:underline"
-                onClick={handleLogin}
+                onClick={handleResend}
               >
-                Resend
+                {isLoadingResendButton ? "Resending..." : "Resend "}
               </span>
             </p>
           </motion.div>
