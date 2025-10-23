@@ -12,7 +12,12 @@ export async function sendOtp(
 
   if (twoFactorMethod === "email") {
     const mailService = new EmailService(user, code);
-    await mailService.sendSignupVerificationOtp();
+    if (purpose === "signup") {
+      await mailService.sendSignupVerificationOtp();
+    } else if (purpose === "login") {
+      await mailService.sendLoginVerificationOtp();
+    }
+    //TODO reset and verify functionality
   } else if (twoFactorMethod === "phone") {
     const smsService = new SmsService(user.phone, code, purpose);
     await smsService.sendSms();
