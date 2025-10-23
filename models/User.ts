@@ -29,6 +29,11 @@ const UserSchema: Schema<IUser> = new Schema(
       lowercase: true,
       trim: true,
     },
+    password: {
+      type: String,
+      required: true,
+      select: false,
+    },
     phone: {
       type: String,
       required: true,
