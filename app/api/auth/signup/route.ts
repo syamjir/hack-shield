@@ -2,28 +2,23 @@ import { connectToMongo } from "@/lib/connectToMongo";
 import { JwtService } from "@/lib/jwtService";
 import { sendOtp } from "@/lib/sendOtp";
 import User from "@/models/User";
+import { SignupInput, signupSchema } from "@/schemas/signupSchema";
 import { NextRequest, NextResponse } from "next/server";
-
-interface RequestBody {
-  email: string;
-  password: string;
-  phone: string;
-  selectedMethod: "email" | "phone";
-}
 
 export async function POST(req: NextRequest) {
   try {
     await connectToMongo();
 
-    const { email, password, phone, selectedMethod }: RequestBody =
-      await req.json();
-
-    if (!email || !password || !phone || !selectedMethod) {
+    // ✅ Input validation
+    const body = await req.json();
+    const parsed = signupSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "All fields are required" },
+        { error: parsed.error.issues[0].message },
         { status: 400 }
       );
     }
+    const { email, password, phone, selectedMethod }: SignupInput = parsed.data;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
