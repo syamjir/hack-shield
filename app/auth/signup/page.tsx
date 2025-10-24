@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
@@ -16,6 +16,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SignupValidation } from "@/lib/signupValidation";
+import { useUser } from "@clerk/nextjs";
+import { useUserContext } from "@/contexts/UserContext";
 
 export interface Form {
   email: string;
@@ -24,6 +26,8 @@ export interface Form {
 }
 
 export default function SignupPage() {
+  const { user } = useUserContext();
+  const emailFromClerk = user?.emailAddresses[0].emailAddress;
   const router = useRouter();
   const [selectedMethod, setSelectedMethod] = useState<
     "email" | "phone" | null
@@ -36,6 +40,14 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  useEffect(() => {
+    if (emailFromClerk) {
+      setForm((form) => ({
+        ...form,
+        email: emailFromClerk,
+      }));
+    }
+  }, [emailFromClerk]);
 
   const validation = new SignupValidation(form, confirmPassword);
 
@@ -126,7 +138,8 @@ export default function SignupPage() {
             value={form.email}
             onChange={handleChange}
             placeholder="Email"
-            className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-0.5 focus-visible:ring-primary-a0"
+            disabled={!!emailFromClerk}
+            className=" bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-0.5 focus-visible:ring-primary-a0"
           />
           {/* Error Message */}
           {!validation.phoneValid() && form.phone && (
