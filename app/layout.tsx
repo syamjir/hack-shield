@@ -6,6 +6,7 @@ import { ModeToggle } from "@/components/ui/ModeToggle";
 import AiChatBot from "@/components/ui/AiChatBot";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
+import { UserProvider } from "@/contexts/UserContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,28 +29,34 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      afterSignOutUrl="/welcome"
+      signInFallbackRedirectUrl="/home"
+      signUpFallbackRedirectUrl="/home"
+    >
       <html lang="en" suppressHydrationWarning>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased p-1 md:p-0  `}
-        >
-          {/* For display alert */}
-          <Toaster richColors theme="system" position="top-right" />
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
+        <UserProvider>
+          <body
+            className={`${geistSans.variable} ${geistMono.variable} antialiased p-1 md:p-0  `}
           >
-            <div className="fixed top-4 right-4 z-100">
-              <ModeToggle />
-            </div>
-            <div className="fixed bottom-5 right-5 z-50">
-              <AiChatBot />
-            </div>
-            {children}
-          </ThemeProvider>
-        </body>
+            {/* For display alert */}
+            <Toaster richColors theme="system" position="top-right" />
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <div className="fixed top-4 right-4 z-100">
+                <ModeToggle />
+              </div>
+              <div className="fixed bottom-5 right-5 z-50">
+                <AiChatBot />
+              </div>
+              {children}
+            </ThemeProvider>
+          </body>
+        </UserProvider>
       </html>
     </ClerkProvider>
   );
