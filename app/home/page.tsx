@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Footer } from "@/components/ui/Footer";
 import { useRef } from "react";
+import { SignedIn, UserButton } from "@clerk/nextjs";
 
 export default function HomePage() {
   const featureRef = useRef<HTMLDivElement>(null);
@@ -17,6 +18,7 @@ export default function HomePage() {
     <main className="min-h-screen bg-surface-a0 text-dark-a0 flex flex-col items-center">
       {/* Navbar */}
       <nav className="w-full max-w-6xl flex justify-between items-center py-6 px-6 backdrop-blur-md bg-surface-a10 rounded-2xl mt-6 shadow-md">
+        {/* Logo */}
         <motion.h1
           className="text-3xl font-extrabold text-primary-a20"
           initial={{ opacity: 0, y: -10 }}
@@ -26,25 +28,36 @@ export default function HomePage() {
           🔐 PassKeeper
         </motion.h1>
 
+        {/* Navigation Buttons */}
         <motion.div
-          className="space-x-4"
+          className="flex items-center space-x-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
         >
+          {/* Show when signed out */}
+
           <Link href="/login">
             <Button
               variant="outline"
-              className="border-primary-a20 text-primary-a30 hover:bg-primary-a10/20"
+              className="border-primary-a20 text-primary-a30 hover:bg-primary-a10/20 transition-all"
             >
-              Login
+              Login to Dashboard
             </Button>
           </Link>
+
           <Link href="/signup">
-            <Button className="bg-primary-a20 hover:bg-primary-a10 text-surface-a0">
+            <Button className="bg-primary-a20 hover:bg-primary-a10 text-surface-a0 transition-all">
               Get Started
             </Button>
           </Link>
+
+          {/* Show when signed in */}
+          <SignedIn>
+            <div className="flex items-center border-2 border-primary-a20 rounded-full hover:scale-105 transition-transform ease-in">
+              <UserButton  />
+            </div>
+          </SignedIn>
         </motion.div>
       </nav>
 
