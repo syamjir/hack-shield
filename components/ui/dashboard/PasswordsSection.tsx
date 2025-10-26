@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Search, Edit, Trash2, Eye } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -31,10 +31,11 @@ export default function PasswordsSection() {
   };
 
   return (
-    <section>
-      <div className="flex justify-between items-center mb-8">
+    <section className="px-1 sm:px-1">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-[var(--primary-a20)]">
+          <h2 className="text-xl sm:text-2xl font-bold text-[var(--primary-a20)]">
             Passwords Vault
           </h2>
           <p className="text-sm text-[var(--surface-a40)]">
@@ -44,11 +45,12 @@ export default function PasswordsSection() {
 
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="bg-[var(--primary-a20)] hover:bg-[var(--primary-a30)] text-white rounded-xl flex items-center gap-2">
+            <Button className="w-full sm:w-auto bg-[var(--primary-a20)] hover:bg-[var(--primary-a30)] text-white rounded-xl flex items-center justify-center gap-2">
               <Plus className="w-4 h-4" /> Add Password
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-[var(--surface-a0)] border-[var(--surface-a20)] rounded-xl">
+
+          <DialogContent className="bg-[var(--surface-a0)] border border-[var(--surface-a20)] rounded-xl max-w-[90vw] sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="text-[var(--primary-a20)]">
                 Add New Password
@@ -62,7 +64,7 @@ export default function PasswordsSection() {
                 onChange={(e) =>
                   setNewPassword({ ...newPassword, site: e.target.value })
                 }
-                className="bg-[var(--surface-a10)] border-none"
+                className="bg-[var(--surface-a10)] border-none focus-visible:ring-[var(--primary-a20)]"
               />
               <Input
                 placeholder="Username / Email"
@@ -70,14 +72,14 @@ export default function PasswordsSection() {
                 onChange={(e) =>
                   setNewPassword({ ...newPassword, username: e.target.value })
                 }
-                className="bg-[var(--surface-a10)] border-none"
+                className="bg-[var(--surface-a10)] border-none focus-visible:ring-[var(--primary-a20)]"
               />
             </div>
 
             <DialogFooter>
               <Button
                 onClick={addPassword}
-                className="bg-[var(--primary-a20)] hover:bg-[var(--primary-a30)] text-white rounded-lg"
+                className="w-full sm:w-auto bg-[var(--primary-a20)] hover:bg-[var(--primary-a30)] text-white rounded-lg"
               >
                 Save
               </Button>
