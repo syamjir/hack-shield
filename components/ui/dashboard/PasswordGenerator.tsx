@@ -2,10 +2,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Copy, RefreshCw } from "lucide-react";
+import { Copy, RefreshCw, ShieldCheck } from "lucide-react";
 import { generatePassword } from "@/lib/passwordUtils";
 
-export default function PasswordGenerator() {
+export default function PasswordGenerator({ onBreachPassword }) {
   const [password, setPassword] = useState("");
   const [length, setLength] = useState(12);
 
@@ -15,11 +15,17 @@ export default function PasswordGenerator() {
     if (password) await navigator.clipboard.writeText(password);
   };
 
+  const handleCopyToBreachChecker = async () => {
+    if (!password) return alert("create password first");
+    onBreachPassword(password);
+  };
+
   return (
     <div className="bg-[var(--surface-a10)] rounded-xl p-5 shadow-md">
       <h3 className="font-semibold text-[var(--primary-a20)] mb-3">
         Password Generator
       </h3>
+
       <div className="flex items-center gap-2 mb-3">
         <Input
           type="number"
@@ -41,15 +47,27 @@ export default function PasswordGenerator() {
         <span className="truncate text-[var(--surface-a50)]">
           {password || "Click Generate"}
         </span>
-        {password && (
-          <Button
-            size="sm"
-            onClick={handleCopy}
-            className="bg-transparent text-[var(--primary-a20)] hover:text-[var(--primary-a30)]"
-          >
-            <Copy size={16} />
-          </Button>
-        )}
+
+        <div className="flex items-center gap-2">
+          {password && (
+            <>
+              <Button
+                size="sm"
+                onClick={handleCopy}
+                className="bg-transparent text-[var(--primary-a20)] hover:text-[var(--primary-a30)]"
+              >
+                <Copy size={16} />
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleCopyToBreachChecker}
+                className="bg-transparent text-[var(--primary-a20)] hover:text-[var(--primary-a30)]"
+              >
+                <ShieldCheck size={16} />
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
