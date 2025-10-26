@@ -7,6 +7,12 @@ import IdentitySection from "./IdentitySection";
 import SecureNotesSection from "./SecureNotesSection";
 import BinView from "./BinView";
 import { BinType } from "@/app/dashboard/page";
+import PasswordsSection from "./PasswordsSection";
+import PasswordGenerator from "./PasswordGenerator";
+import BreachChecker from "./BreachChecker";
+import { Search } from "lucide-react";
+import { Input } from "../input";
+import { useState } from "react";
 
 interface TabsSectionProps {
   type: "logins" | "identities" | "notes" | "cards";
@@ -23,8 +29,8 @@ export default function TabsSection({
   setPasswords,
   setBin,
 }: TabsSectionProps) {
-  // Determine the default active tab for each section
-  console.log(bin);
+  const [breachPassword, setBreachPassword] = useState("");
+
   const defaultTab =
     type === "logins"
       ? "login"
@@ -33,31 +39,82 @@ export default function TabsSection({
       : type === "cards"
       ? "card"
       : "notes";
+  const [activeTab, setActiveTab] = useState(defaultTab);
 
   return (
-    <Tabs defaultValue={defaultTab} className="mt-5">
-      <TabsList className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 bg-[var(--surface-a10)] rounded-lg">
-        {type === "logins" && <TabsTrigger value="login">Logins</TabsTrigger>}
-        {type === "identities" && (
-          <TabsTrigger value="identity">Identity</TabsTrigger>
+    <Tabs
+      defaultValue={defaultTab}
+      value={activeTab}
+      onValueChange={setActiveTab}
+      className="mt-5"
+    >
+      {type === "logins" && <PasswordsSection />}
+      <div className="flex justify-between mb-3">
+        <TabsList className="flex flex-wrap gap-2 bg-[var(--surface-a10)] rounded-lg p-1 ">
+          {type === "logins" && (
+            <>
+              <TabsTrigger value="login" className="flex-1 md:flex-none px-4">
+                Logins
+              </TabsTrigger>
+              <TabsTrigger value="secure" className="flex-1 md:flex-none px-4">
+                Secure Password
+              </TabsTrigger>
+            </>
+          )}
+          {type === "identities" && (
+            <TabsTrigger value="identity" className="flex-1 md:flex-none px-4">
+              Identity
+            </TabsTrigger>
+          )}
+          {type === "notes" && (
+            <TabsTrigger value="notes" className="flex-1 md:flex-none px-4">
+              Notes
+            </TabsTrigger>
+          )}
+          {type === "cards" && (
+            <TabsTrigger value="card" className="flex-1 md:flex-none px-4">
+              Cards
+            </TabsTrigger>
+          )}
+          <TabsTrigger value="bin" className="flex-1 md:flex-none px-4">
+            Bin
+          </TabsTrigger>
+        </TabsList>
+
+        {type === "logins" && activeTab === "login" && (
+          <div className="relative w-lg">
+            <Search className="absolute left-3 top-2.5 text-[var(--surface-a40)] w-4 h-4" />
+            <Input
+              type="text"
+              placeholder="Search passwords..."
+              className="pl-9 bg-[var(--surface-a10)] border-none focus-visible:ring-[var(--primary-a20)] rounded-lg"
+            />
+          </div>
         )}
-        {type === "notes" && <TabsTrigger value="notes">Notes</TabsTrigger>}
-        {type === "cards" && <TabsTrigger value="cards">Notes</TabsTrigger>}
+      </div>
 
-        <TabsTrigger value="bin">Bin</TabsTrigger>
-      </TabsList>
-
+      {/* Logins */}
       {type === "logins" && (
-        <TabsContent value="login">
-          <PasswordTable
-            title={type}
-            passwords={passwords}
-            setPasswords={setPasswords}
-            setBin={setBin}
-          />
-        </TabsContent>
+        <>
+          <TabsContent value="login">
+            <PasswordTable
+              title={type}
+              passwords={passwords}
+              setPasswords={setPasswords}
+              setBin={setBin}
+            />
+          </TabsContent>
+
+          <TabsContent value="secure">
+            <section className="grid md:grid-cols-2 gap-4">
+              <PasswordGenerator onBreachPassword={setBreachPassword} />
+              <BreachChecker breachPassword={breachPassword} />
+            </section>
+          </TabsContent>
+        </>
       )}
 
+      {/* Identities */}
       {type === "identities" && (
         <TabsContent value="identity">
           <IdentitySection
@@ -68,6 +125,7 @@ export default function TabsSection({
         </TabsContent>
       )}
 
+      {/* Notes */}
       {type === "notes" && (
         <TabsContent value="notes">
           <SecureNotesSection
@@ -77,6 +135,8 @@ export default function TabsSection({
           />
         </TabsContent>
       )}
+
+      {/* Cards */}
       {type === "cards" && (
         <TabsContent value="card">
           <CardSection
@@ -87,6 +147,7 @@ export default function TabsSection({
         </TabsContent>
       )}
 
+      {/* Bin */}
       <TabsContent value="bin">
         <BinView
           title={type}
