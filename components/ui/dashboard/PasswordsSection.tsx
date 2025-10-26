@@ -34,7 +34,7 @@ export default function PasswordsSection() {
     <section>
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h2 className="text-3xl font-bold text-[var(--primary-a20)]">
+          <h2 className="text-2xl font-bold text-[var(--primary-a20)]">
             Passwords Vault
           </h2>
           <p className="text-sm text-[var(--surface-a40)]">
@@ -84,37 +84,6 @@ export default function PasswordsSection() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </div>
-
-      <div className="relative mb-6">
-        <Search className="absolute left-3 top-2.5 text-[var(--surface-a40)] w-4 h-4" />
-        <Input
-          type="text"
-          placeholder="Search passwords..."
-          className="pl-9 bg-[var(--surface-a10)] border-none focus-visible:ring-[var(--primary-a20)] rounded-xl"
-        />
-      </div>
-
-      {/* Password List */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {passwords.map((item) => (
-          <div
-            key={item.id}
-            className="p-4 rounded-xl bg-[var(--surface-a10)] border border-[var(--surface-a20)] flex justify-between items-center"
-          >
-            <div>
-              <h3 className="font-semibold">{item.site}</h3>
-              <p className="text-sm text-[var(--surface-a40)]">
-                {item.username}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Eye className="w-4 h-4 cursor-pointer" />
-              <Edit className="w-4 h-4 cursor-pointer" />
-              <Trash2 className="w-4 h-4 cursor-pointer text-red-400" />
-            </div>
-          </div>
-        ))}
       </div>
     </section>
   );
