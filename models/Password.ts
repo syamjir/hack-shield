@@ -8,6 +8,8 @@ export interface IPassword extends Document {
   password: string;
   strength: "Weak" | "Medium" | "Strong";
   websiteUri?: string;
+  isDeleted: boolean;
+  deletedAt: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,6 +40,13 @@ const PasswordSchema: Schema<IPassword> = new Schema(
     },
     websiteUri: {
       type: String,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    deletedAt: {
+      type: Date,
     },
   },
   { timestamps: true }
