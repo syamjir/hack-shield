@@ -14,4 +14,4 @@ export const signupSchema = z.object({
   phone: z.string().regex(/^[6-9]\d{9}$/, { message: "Invalid phone number" }),
 });
 
-export type SignupInput = z.infer<typeof signupScheme>;
+export type SignupInput = z.infer<typeof signupSchema>;
