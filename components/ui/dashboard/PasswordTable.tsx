@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Edit, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Edit, Trash2, Globe } from "lucide-react";
 
 export default function PasswordTable({
   title,
@@ -35,12 +35,13 @@ export default function PasswordTable({
 
   return (
     <div className="w-full">
-      {/* ✅ Desktop View (from lg and up) */}
+      {/* ✅ Desktop View */}
       <div className="hidden lg:block overflow-x-auto rounded-2xl bg-[var(--surface-a10)]/50 backdrop-blur-md shadow-md">
         <table className="min-w-full text-sm">
           <thead>
             <tr className="text-[var(--primary-a20)] text-left border-b border-[var(--surface-a20)]">
               <th className="p-4">Site</th>
+              <th className="p-4">Website</th>
               <th className="p-4">Username</th>
               <th className="p-4">Password</th>
               <th className="p-4">Strength</th>
@@ -57,10 +58,40 @@ export default function PasswordTable({
                 className="hover:bg-[var(--surface-a10)]/70 transition"
               >
                 <td className="p-4 font-semibold">{p.site}</td>
+
+                {/* 🌐 Website URI */}
+                <td className="p-4 text-blue-500 underline">
+                  {p.websiteUri ? (
+                    <a
+                      href={
+                        p.websiteUri.startsWith("http")
+                          ? p.websiteUri
+                          : `https://${p.websiteUri}`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 hover:text-blue-400"
+                    >
+                      <Globe size={14} />
+                      {
+                        new URL(
+                          p.websiteUri.startsWith("http")
+                            ? p.websiteUri
+                            : `https://${p.websiteUri}`
+                        ).hostname
+                      }
+                    </a>
+                  ) : (
+                    <span className="text-gray-400">—</span>
+                  )}
+                </td>
+
                 <td className="p-4">{p.username}</td>
+
                 <td className="p-4 font-mono">
                   {visibleId === p.id ? p.password : "••••••••"}
                 </td>
+
                 <td
                   className={`p-4 ${
                     p.strength === "Strong"
@@ -72,6 +103,7 @@ export default function PasswordTable({
                 >
                   {p.strength}
                 </td>
+
                 <td className="p-4 flex justify-end gap-3 text-[var(--primary-a20)]">
                   {visibleId === p.id ? (
                     <EyeOff
@@ -96,7 +128,7 @@ export default function PasswordTable({
         </table>
       </div>
 
-      {/* ✅ Mobile + Tablet View (below lg) */}
+      {/* ✅ Mobile + Tablet View */}
       <div className="lg:hidden space-y-3">
         {passwords.map((p, i) => (
           <motion.div
@@ -122,6 +154,30 @@ export default function PasswordTable({
                 {p.strength}
               </span>
             </div>
+
+            {/* 🌐 Website */}
+            {p.websiteUri && (
+              <a
+                href={
+                  p.websiteUri.startsWith("http")
+                    ? p.websiteUri
+                    : `https://${p.websiteUri}`
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 text-sm underline flex items-center gap-1 mb-2"
+              >
+                <Globe size={14} />
+                {
+                  new URL(
+                    p.websiteUri.startsWith("http")
+                      ? p.websiteUri
+                      : `https://${p.websiteUri}`
+                  ).hostname
+                }
+              </a>
+            )}
+
             <p className="text-sm text-[var(--surface-a40)] mb-2">
               {p.username}
             </p>
