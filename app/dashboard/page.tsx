@@ -3,10 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Lock, User, StickyNote, CreditCard, ArrowLeft } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
-import PasswordGenerator from "@/components/ui/dashboard/PasswordGenerator";
-import BreachChecker from "@/components/ui/dashboard/BreachChecker";
 import TabsSection from "@/components/ui/dashboard/TabsSection";
 
 // ===== TYPES =====
@@ -15,6 +12,7 @@ export type Login = {
   site: string;
   username: string;
   strength: string;
+  websiteUri: string;
 };
 export type Identity = { id: number; name: string; email: string };
 export type Note = { id: number; title: string; content: string };
@@ -42,8 +40,20 @@ export default function DashboardPage() {
 
   // ===== MOCK DATA =====
   const [logins, setLogins] = useState<Login[]>([
-    { id: 1, site: "Google", username: "dharmi@gmail.com", strength: "Strong" },
-    { id: 2, site: "LinkedIn", username: "dharmishta.r", strength: "Medium" },
+    {
+      id: 1,
+      site: "Google",
+      username: "dharmi@gmail.com",
+      strength: "Strong",
+      websiteUri: "https://www.google.com",
+    },
+    {
+      id: 2,
+      site: "LinkedIn",
+      username: "dharmishta.r",
+      strength: "Medium",
+      websiteUri: "https://www.linkedin.com",
+    },
   ]);
 
   const [identities, setIdentities] = useState<Identity[]>([
