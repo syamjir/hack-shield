@@ -162,7 +162,8 @@
 
   --info-a0: #1e56a3;
   --info-a10: #347ada;
-  --info-a20: #74a4e6;
+  --info-a20: #60a5fa;
+  --info-a30: #74a4e6;
 }
 
 .dark {
@@ -239,7 +240,8 @@
 
   --info-a0: #21498a;
   --info-a10: #4077d1;
-  --info-a20: #92b2e5;
+  --info-a20: #60a5fa;
+  --info-a30: #92b2e5;
 }
 
 @layer base {
