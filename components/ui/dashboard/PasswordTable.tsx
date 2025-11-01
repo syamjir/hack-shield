@@ -36,10 +36,10 @@ export default function PasswordTable({
   return (
     <div className="w-full">
       {/* ✅ Desktop View */}
-      <div className="hidden lg:block overflow-x-auto rounded-2xl bg-[var(--surface-a10)]/50 backdrop-blur-md shadow-md">
+      <div className="hidden lg:block overflow-x-auto rounded-2xl bg-surface-a10/50 backdrop-blur-md shadow-md">
         <table className="min-w-full text-sm">
           <thead>
-            <tr className="text-[var(--primary-a20)] text-left border-b border-[var(--surface-a20)]">
+            <tr className="text-primary-a20 text-left border-b border-surface-a20">
               <th className="p-4">Site</th>
               <th className="p-4">Website</th>
               <th className="p-4">Username</th>
@@ -55,12 +55,12 @@ export default function PasswordTable({
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="hover:bg-[var(--surface-a10)]/70 transition"
+                className="hover:bg-surface-a10/70 transition"
               >
-                <td className="p-4 font-semibold">{p.site}</td>
+                <td className="p-4 font-semibold text-dark-a0/50">{p.site}</td>
 
                 {/* 🌐 Website URI */}
-                <td className="p-4 text-blue-500 underline">
+                <td className="p-4 text-info-a10 underline">
                   {p.websiteUri ? (
                     <a
                       href={
@@ -70,7 +70,7 @@ export default function PasswordTable({
                       }
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1 hover:text-blue-400"
+                      className="flex items-center gap-1 hover:text-info-a20"
                     >
                       <Globe size={14} />
                       {
@@ -82,13 +82,13 @@ export default function PasswordTable({
                       }
                     </a>
                   ) : (
-                    <span className="text-gray-400">—</span>
+                    <span className="text-dark-a0/50">—</span>
                   )}
                 </td>
 
-                <td className="p-4">{p.username}</td>
+                <td className="p-4 text-dark-a0/50">{p.username}</td>
 
-                <td className="p-4 font-mono">
+                <td className="p-4 font-mono text-dark-a0/50">
                   {visibleId === p.id ? p.password : "••••••••"}
                 </td>
 
@@ -104,7 +104,7 @@ export default function PasswordTable({
                   {p.strength}
                 </td>
 
-                <td className="p-4 flex justify-end gap-3 text-[var(--primary-a20)]">
+                <td className="p-4 flex justify-end gap-3 text-primary-a20">
                   {visibleId === p.id ? (
                     <EyeOff
                       className="w-4 h-4 cursor-pointer hover:scale-110 transition"
@@ -136,12 +136,10 @@ export default function PasswordTable({
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="bg-[var(--surface-a10)]/50 rounded-xl p-4 shadow-sm backdrop-blur-md"
+            className="bg-surface-a10/50 rounded-xl p-4 shadow-sm backdrop-blur-md"
           >
             <div className="flex justify-between items-center mb-2">
-              <h3 className="font-semibold text-[var(--primary-a20)]">
-                {p.site}
-              </h3>
+              <h3 className="font-semibold text-primary-a20">{p.site}</h3>
               <span
                 className={`text-xs font-semibold ${
                   p.strength === "Strong"
@@ -165,7 +163,7 @@ export default function PasswordTable({
                 }
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-500 text-sm underline flex items-center gap-1 mb-2"
+                className=" text-info-a0 text-sm underline flex items-center gap-1 mb-2"
               >
                 <Globe size={14} />
                 {
@@ -178,14 +176,12 @@ export default function PasswordTable({
               </a>
             )}
 
-            <p className="text-sm text-[var(--surface-a40)] mb-2">
-              {p.username}
-            </p>
+            <p className="text-sm text-surface-a40 mb-2">{p.username}</p>
             <p className="font-mono mb-3">
               {visibleId === p.id ? p.password : "••••••••"}
             </p>
 
-            <div className="flex justify-end gap-3 text-[var(--primary-a20)]">
+            <div className="flex justify-end gap-3 text-primary-a20">
               {visibleId === p.id ? (
                 <EyeOff
                   className="w-4 h-4 cursor-pointer hover:scale-110 transition"
