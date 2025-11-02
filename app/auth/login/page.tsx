@@ -230,6 +230,15 @@ export default function LoginPage() {
                 </>
               )}
             </Button>
+            <p className="text-xs text-dark-a0/60 mt-4 text-center">
+              Don’t have an account?{" "}
+              <span
+                onClick={() => router.push("/auth/signup")}
+                className="text-primary-a20 font-medium cursor-pointer hover:underline"
+              >
+                Sign up
+              </span>
+            </p>
           </div>
         </AuthCard>
       ) : (
