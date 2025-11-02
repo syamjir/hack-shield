@@ -1,9 +1,7 @@
 import { connectToMongo } from "@/lib/connectToMongo";
-import { JwtService } from "@/lib/jwtService";
 import Password from "@/models/Password";
 import User from "@/models/User";
 import { passwordInput, passwordSchema } from "@/schemas/passwordSchema";
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -20,31 +18,9 @@ export async function POST(req: NextRequest) {
     const { site, username, password, websiteUri, strength }: passwordInput =
       parsed.data;
 
-    // ✅ Get JWT from cookies
-    const cookieStore = cookies();
-    const token = (await cookieStore).get("jwt")?.value;
+    const userId = req.headers.get("userId");
 
-    if (!token) {
-      return NextResponse.json(
-        { error: "Unauthorized. Please log in first." },
-        { status: 401 }
-      );
-    }
-
-    // ✅ Decode JWT and find user
-    let decoded;
-    try {
-      const jwtService = new JwtService();
-      decoded = await jwtService.decodeJwtToken(token);
-    } catch (err) {
-      console.error("JWT decode failed:", err);
-      return NextResponse.json(
-        { error: "Invalid or expired session" },
-        { status: 401 }
-      );
-    }
-
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(userId);
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
@@ -65,7 +41,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           message: "Password saved successfully",
-          data: createdPassword,
+          password: createdPassword,
         },
         { status: 201 }
       );
