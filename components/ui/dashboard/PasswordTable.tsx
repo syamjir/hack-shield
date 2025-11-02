@@ -3,13 +3,21 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Edit, Trash2, Globe } from "lucide-react";
+import { BinType, Login } from "@/app/dashboard/page";
+
+interface PasswordTableProps {
+  title: string;
+  passwords: Login[];
+  setPasswords: React.Dispatch<React.SetStateAction<Login[]>>;
+  setBin: React.Dispatch<React.SetStateAction<BinType>>;
+}
 
 export default function PasswordTable({
   title,
   passwords,
   setPasswords,
   setBin,
-}) {
+}: PasswordTableProps) {
   const [visibleId, setVisibleId] = useState<number | null>(null);
 
   const moveToBin = (id: number) => {
@@ -25,12 +33,14 @@ export default function PasswordTable({
         ? "notes"
         : "cards";
 
-    setBin((prev: any) => ({
+    setBin((prev: BinType) => ({
       ...prev,
       [key]: [...prev[key], item],
     }));
 
-    setPasswords((prev: any) => prev.filter((p: any) => p.id !== item.id));
+    setPasswords((prev: Login[]) =>
+      prev.filter((p: Login) => p.id !== item.id)
+    );
   };
 
   return (
@@ -51,7 +61,7 @@ export default function PasswordTable({
           <tbody>
             {passwords.map((p, i) => (
               <motion.tr
-                key={p.id}
+                key={p._id || p.id}
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
