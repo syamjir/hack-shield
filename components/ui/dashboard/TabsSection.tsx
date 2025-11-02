@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import PasswordTable from "./PasswordTable";
 import CardSection from "./CardSection";
 import IdentitySection from "./IdentitySection";
 import SecureNotesSection from "./SecureNotesSection";
 import BinView from "./BinView";
-import { BinType } from "@/app/dashboard/page";
+import { BinType, Login } from "@/app/dashboard/page";
 import PasswordsSection from "./PasswordsSection";
 import PasswordGenerator from "./PasswordGenerator";
 import BreachChecker from "./BreachChecker";
@@ -16,10 +16,10 @@ import { Input } from "../input";
 
 interface TabsSectionProps {
   type: "logins" | "identities" | "notes" | "cards";
-  passwords: any[];
-  setPasswords: (data: any[]) => void;
+  passwords: Login[];
+  setPasswords: React.Dispatch<React.SetStateAction<Login[]>>;
   bin: BinType;
-  setBin: (data: BinType) => void;
+  setBin: React.Dispatch<React.SetStateAction<BinType>>;
 }
 
 export default function TabsSection({
@@ -48,7 +48,7 @@ export default function TabsSection({
       className="mt-5 w-full"
     >
       {/* Header (Password Vault Info Section) */}
-      {type === "logins" && <PasswordsSection />}
+      {type === "logins" && <PasswordsSection setPasswords={setPasswords} />}
 
       {/* Tabs + Search Row */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 flex-wrap">
