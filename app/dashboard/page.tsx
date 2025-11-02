@@ -8,11 +8,14 @@ import TabsSection from "@/components/ui/dashboard/TabsSection";
 
 // ===== TYPES =====
 export type Login = {
-  id: number;
+  _id?: string;
+  userId?: string;
+  id?: number;
   site: string;
   username: string;
-  strength: string;
-  websiteUri: string;
+  strength: "Weak" | "Medium" | "Strong";
+  password: string;
+  websiteUri?: string;
 };
 export type Identity = { id: number; name: string; email: string };
 export type Note = { id: number; title: string; content: string };
@@ -45,6 +48,7 @@ export default function DashboardPage() {
       site: "Google",
       username: "dharmi@gmail.com",
       strength: "Strong",
+      password: "1234",
       websiteUri: "https://www.google.com",
     },
     {
@@ -52,6 +56,7 @@ export default function DashboardPage() {
       site: "LinkedIn",
       username: "dharmishta.r",
       strength: "Medium",
+      password: "abcd",
       websiteUri: "https://www.linkedin.com",
     },
   ]);
