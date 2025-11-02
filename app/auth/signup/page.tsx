@@ -104,14 +104,9 @@ export default function SignupPage() {
         transition={{ duration: 0.8 }}
         className="relative backdrop-blur-xl bg-both-white-a0/5 border border-surface-a20 rounded-2xl shadow-xl max-w-md w-full p-8 text-center"
       >
-        <motion.h1
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="text-3xl font-bold text-primary-a20 mb-2"
-        >
+        <h1 className="text-3xl font-bold text-primary-a20 mb-2">
           Create Account
-        </motion.h1>
+        </h1>
 
         <p className="text-dark-a0/70 text-sm mb-6">
           Secure your account with two-factor authentication
@@ -290,6 +285,15 @@ export default function SignupPage() {
               </>
             )}
           </Button>
+          <p className="text-xs text-dark-a0/60 mt-4 text-center">
+            Already have an account?{" "}
+            <span
+              onClick={() => router.push("/auth/login")}
+              className="text-primary-a20 font-medium cursor-pointer hover:underline"
+            >
+              Sign in
+            </span>
+          </p>
         </motion.div>
       </motion.div>
 
