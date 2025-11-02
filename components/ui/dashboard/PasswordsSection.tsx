@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Eye, EyeOff, Plus, Shield } from "lucide-react";
+import { Eye, EyeOff, Loader2, Plus, Save, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FiLock, FiAlertCircle, FiCheckCircle } from "react-icons/fi";
@@ -15,30 +15,29 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 // import { useSession } from "next-auth/react";
-import calculateStrength from "@/lib/passwordStrength";
 import { toast } from "sonner";
-
-interface Password {
-  _id?: string;
-  userId?: string;
-  site: string;
-  username: string;
-  password: string;
-  strength: "Weak" | "Medium" | "Strong";
-  websiteUri?: string;
+import { Login } from "@/app/dashboard/page";
+import { useUserContext } from "@/contexts/UserContext";
+import { useRouter } from "next/navigation";
+interface PasswordsSectionProp {
+  setPasswords: React.Dispatch<React.SetStateAction<Login[]>>;
 }
 
-export default function PasswordsSection() {
-  // const { data: session } = useSession();
+export default function PasswordsSection({
+  setPasswords,
+}: PasswordsSectionProp) {
+  const { isSignedIn } = useUserContext();
   const [showPassword, setShowPassword] = useState(false);
-  const [passwords, setPasswords] = useState<Password[]>([]);
-  const [newPassword, setNewPassword] = useState<Password>({
+  const [isLoading, setIsLoading] = useState(false);
+  const [newPassword, setNewPassword] = useState<Login>({
     site: "",
     username: "",
     password: "",
     strength: "Weak",
     websiteUri: "",
   });
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const router = useRouter();
   // validator
   const validator = new PasswordValidator();
 
@@ -48,39 +47,52 @@ export default function PasswordsSection() {
       !newPassword.site ||
       !newPassword.username ||
       !newPassword.password ||
-      !session?.user?.id
+      !newPassword.strength
     ) {
       toast.error("Please fill all required fields");
       return;
     }
+    if (!isSignedIn) {
+      toast.error("Please log in first");
+      router.push("/welcome");
+      return;
+    }
 
-    const strength = calculateStrength(newPassword.password);
+    const strength = validator.calculateStrength(newPassword.password);
 
     try {
+      setIsLoading(true);
       const res = await fetch("/api/passwords", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...newPassword,
-          userId: "usedid",
           strength,
         }),
       });
 
-      if (!res.ok) throw new Error("Failed to save password");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Something went wrong");
+      }
       const data = await res.json();
-
-      setPasswords((prev) => [...prev, data]);
+      console.log(data);
+      setPasswords((prev: Login[]) => [...prev, data.password]);
       setNewPassword({
         site: "",
         username: "",
         password: "",
-        strength: "",
+        strength: "Weak",
         websiteUri: "",
       });
       toast.success("Password saved successfully!");
+      setDialogOpen(false);
     } catch (err) {
-      toast.error((err as Error).message);
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -97,7 +109,7 @@ export default function PasswordsSection() {
           </p>
         </div>
 
-        <Dialog>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button className="w-full sm:w-auto bg-primary-a20 hover:bg-primary-a30 text-white rounded-xl flex items-center justify-center gap-2">
               <Plus className="w-4 h-4" /> Add Password
@@ -207,7 +219,15 @@ export default function PasswordsSection() {
                 onClick={addPassword}
                 className="w-full sm:w-auto bg-primary-a20 hover:bg-primary-a30 text-white rounded-lg"
               >
-                Save
+                {isLoading ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" /> Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save size={18} /> Save
+                  </>
+                )}
               </Button>
             </DialogFooter>
           </DialogContent>
