@@ -25,6 +25,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // Check if the same user already saved the same login credentials
+    const existingPassword = await Password.findOne({
+      userId,
+      username,
+    }).select("+password");
+    const isPasswordSame = await existingPassword?.comparePassword(password);
+    if (existingPassword && isPasswordSame) {
+      return NextResponse.json(
+        { error: "This login credential is already saved" },
+        { status: 409 }
+      );
+    }
+
     // ✅ Create and save new password entry
     try {
       const newPassword = new Password({
