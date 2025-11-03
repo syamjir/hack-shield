@@ -142,7 +142,7 @@ export default function PasswordTable({
       <div className="lg:hidden space-y-3">
         {passwords.map((p, i) => (
           <motion.div
-            key={p.id}
+            key={p.id || p._id}
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
@@ -188,11 +188,11 @@ export default function PasswordTable({
 
             <p className="text-sm text-surface-a40 mb-2">{p.username}</p>
             <p className="font-mono mb-3">
-              {visibleId === p.id ? p.password : "••••••••"}
+              {visibleId === p.id || p._id ? p.password : "••••••••"}
             </p>
 
             <div className="flex justify-end gap-3 text-primary-a20">
-              {visibleId === p.id ? (
+              {visibleId === p.id || p._id ? (
                 <EyeOff
                   className="w-4 h-4 cursor-pointer hover:scale-110 transition"
                   onClick={() => setVisibleId(null)}
@@ -200,13 +200,13 @@ export default function PasswordTable({
               ) : (
                 <Eye
                   className="w-4 h-4 cursor-pointer hover:scale-110 transition"
-                  onClick={() => setVisibleId(p.id)}
+                  onClick={() => setVisibleId(p.id || p._id)}
                 />
               )}
               <Edit className="w-4 h-4 cursor-pointer hover:scale-110 transition" />
               <Trash2
                 className="w-4 h-4 cursor-pointer hover:scale-110 transition"
-                onClick={() => moveToBin(p.id)}
+                onClick={() => moveToBin(p.id || p._id)}
               />
             </div>
           </motion.div>
