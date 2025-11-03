@@ -12,6 +12,7 @@ export interface IPassword extends Document {
   deletedAt: Date;
   createdAt: Date;
   updatedAt: Date;
+  comparePassword(password: string): Promise<boolean>;
 }
 
 const PasswordSchema: Schema<IPassword> = new Schema(
@@ -32,6 +33,7 @@ const PasswordSchema: Schema<IPassword> = new Schema(
     password: {
       type: String,
       required: true,
+      select: false,
     },
     strength: {
       type: String,
@@ -61,6 +63,13 @@ PasswordSchema.pre("save", async function (next) {
   );
   next();
 });
+
+// 🔐 Compare password for check same login credentials
+PasswordSchema.methods.comparePassword = async function (
+  password: string
+): Promise<boolean> {
+  return await bcrypt.compare(password, this.password);
+};
 
 const Password: Model<IPassword> =
   mongoose.models.Password ||
