@@ -6,7 +6,7 @@ import { Lock } from "lucide-react";
 import TurnstileCaptcha from "@/components/ui/TurnstileCaptcha";
 
 export default function Home() {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL as string;
 
   return (
     <main className="relative min-h-screen flex items-center justify-center bg-surface-a0 text-dark-a0 overflow-hidden">
@@ -48,7 +48,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="mt-4 flex flex-col items-center space-y-4"
+          className="hidden md:flex mt-4 flex-col items-center space-y-4"
         >
           <h3 className="text-sm font-medium text-dark-a0/50">
             Scan to open the app on your phone
