@@ -73,3 +73,40 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function GET(req: NextRequest) {
+  try {
+    await connectToMongo();
+    const userId = req.headers.get("userId");
+    // ✅ Check if user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // ✅ Retrieve all passwords for the user
+    const passwords = await Password.find({ userId }).lean();
+
+    // ✅ Return error if user has not saved any passwords yet
+    if (passwords.length === 0) {
+      return NextResponse.json(
+        { error: "No passwords found for this user" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        message: "Passwords retrieved successfully",
+        data: passwords,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("GET /api/passwords error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
