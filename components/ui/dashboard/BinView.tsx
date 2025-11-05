@@ -1,33 +1,62 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Trash2, RotateCcw } from "lucide-react";
+import { toast } from "sonner";
 
 export default function BinView({ title, bin, setBin, setPasswords }) {
-  const restoreItem = (item) => {
-    // 1️⃣ Add item back to the active list
-    setPasswords((prev) => [...prev, item]);
+  const restoreItem = async (item) => {
+    try {
+      const res = await fetch(`/api/passwords/${item._id}/restore`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      });
 
-    // 2️⃣ Remove item from the bin based on the section title
-    if (title === "logins") {
+      const { message, data: restoreItem } = await res.json();
+
+      if (!res.ok) throw new Error(message || "Something went wrong");
+
+      toast.success(message);
+
+      // 1️⃣ Add item back to active passwords (avoid duplicates)
+      setPasswords((prev) => {
+        const exists = prev.some((p) => p._id === restoreItem._id);
+        return exists ? prev : [...prev, restoreItem];
+      });
+
+      // 2️⃣ Remove restored item from bin dynamically
       setBin((prev) => ({
         ...prev,
-        logins: prev.logins.filter((p) => p.id !== item.id),
+        [title]: prev[title].filter((p) => p._id !== restoreItem._id),
       }));
-    } else if (title === "identities") {
-      setBin((prev) => ({
-        ...prev,
-        identities: prev.identities.filter((p) => p.id !== item.id),
-      }));
-    } else if (title === "notes") {
-      setBin((prev) => ({
-        ...prev,
-        notes: prev.notes.filter((p) => p.id !== item.id),
-      }));
+    } catch (err) {
+      console.error(err);
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
     }
   };
 
-  const deleteForever = (id) => {
-    setBin((prev) => prev.filter((p) => p.id !== id));
+  const deleteForever = async (id) => {
+    try {
+      const res = await fetch(`/api/passwords/${id}/delete`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
+      const deletedPassword = data.data;
+      toast.success(data.message);
+      // 2️⃣ Remove deleted item from bin dynamically
+      setBin((prev) => ({
+        ...prev,
+        [title]: prev[title].filter((p) => p._id !== deletedPassword._id),
+      }));
+    } catch (err) {
+      console.error(err);
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+      toast.error(message);
+    }
   };
 
   console.log(bin);
@@ -48,7 +77,7 @@ export default function BinView({ title, bin, setBin, setPasswords }) {
           <tbody>
             {bin.map((p) => (
               <tr
-                key={p.id}
+                key={p._id}
                 className="hover:bg-[var(--surface-a10)]/70 transition"
               >
                 <td className="p-3 font-semibold">{p.site}</td>
@@ -65,7 +94,7 @@ export default function BinView({ title, bin, setBin, setPasswords }) {
                   <Button
                     size="sm"
                     variant="ghost"
-                    onClick={() => deleteForever(p.id)}
+                    onClick={() => deleteForever(p._id)}
                     className="text-red-500"
                   >
                     <Trash2 size={16} />
