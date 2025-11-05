@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Edit, Trash2, Globe } from "lucide-react";
 import { BinType, Login } from "@/app/dashboard/page";
+import { toast } from "sonner";
 
 interface PasswordTableProps {
   title: string;
@@ -20,27 +21,50 @@ export default function PasswordTable({
 }: PasswordTableProps) {
   const [visibleId, setVisibleId] = useState<number | null>(null);
 
-  const moveToBin = (id: number) => {
-    const item = passwords.find((p) => p.id === id);
-    if (!item) return;
+  const moveToBin = async (id: string) => {
+    try {
+      const res = await fetch(`/api/passwords/${id}/move-to-bin`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      });
 
-    const key =
-      title === "logins"
-        ? "logins"
-        : title === "identities"
-        ? "identities"
-        : title === "notes"
-        ? "notes"
-        : "cards";
+      const data = await res.json();
 
-    setBin((prev: BinType) => ({
-      ...prev,
-      [key]: [...prev[key], item],
-    }));
+      if (!res.ok) {
+        throw new Error(data.error || "Something went wrong");
+      }
 
-    setPasswords((prev: Login[]) =>
-      prev.filter((p: Login) => p.id !== item.id)
-    );
+      toast.success(data.message);
+
+      const deletedPassword = data.data;
+      if (!deletedPassword) return;
+
+      // Determine which key to update based on section title
+      const key =
+        title === "logins"
+          ? "logins"
+          : title === "identities"
+          ? "identities"
+          : title === "notes"
+          ? "notes"
+          : "cards";
+
+      // ✅ Update the Bin with the deleted password
+      setBin((prev: BinType) => ({
+        ...prev,
+        [key]: [...prev[key], deletedPassword],
+      }));
+
+      // ✅ Remove from the active password list
+      setPasswords((prev: Login[]) =>
+        prev.filter((p) => p._id !== deletedPassword._id)
+      );
+    } catch (err) {
+      console.error("Move to bin failed:", err);
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+      toast.error(message);
+    }
   };
 
   return (
@@ -61,7 +85,7 @@ export default function PasswordTable({
           <tbody>
             {passwords.map((p, i) => (
               <motion.tr
-                key={p._id || p.id}
+                key={p._id}
                 initial={{ opacity: 0, y: 15 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
@@ -99,7 +123,7 @@ export default function PasswordTable({
                 <td className="p-4 text-dark-a0/50">{p.username}</td>
 
                 <td className="p-4 font-mono text-dark-a0/50">
-                  {visibleId === p.id ? p.password : "••••••••"}
+                  {visibleId === p._id ? p.password : "••••••••"}
                 </td>
 
                 <td
@@ -115,7 +139,7 @@ export default function PasswordTable({
                 </td>
 
                 <td className="p-4 flex justify-end gap-3 text-primary-a20">
-                  {visibleId === p.id ? (
+                  {visibleId === p._id ? (
                     <EyeOff
                       className="w-4 h-4 cursor-pointer hover:scale-110 transition"
                       onClick={() => setVisibleId(null)}
@@ -123,13 +147,13 @@ export default function PasswordTable({
                   ) : (
                     <Eye
                       className="w-4 h-4 cursor-pointer hover:scale-110 transition"
-                      onClick={() => setVisibleId(p.id)}
+                      onClick={() => setVisibleId(p._id)}
                     />
                   )}
                   <Edit className="w-4 h-4 cursor-pointer hover:scale-110 transition" />
                   <Trash2
                     className="w-4 h-4 cursor-pointer hover:scale-110 transition"
-                    onClick={() => moveToBin(p.id)}
+                    onClick={() => moveToBin(p._id)}
                   />
                 </td>
               </motion.tr>
@@ -142,7 +166,7 @@ export default function PasswordTable({
       <div className="lg:hidden space-y-3">
         {passwords.map((p, i) => (
           <motion.div
-            key={p.id || p._id}
+            key={p._id}
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
@@ -188,11 +212,11 @@ export default function PasswordTable({
 
             <p className="text-sm text-surface-a40 mb-2">{p.username}</p>
             <p className="font-mono mb-3">
-              {visibleId === p.id || p._id ? p.password : "••••••••"}
+              {visibleId === p._id ? p.password : "••••••••"}
             </p>
 
             <div className="flex justify-end gap-3 text-primary-a20">
-              {visibleId === p.id || p._id ? (
+              {visibleId === p._id ? (
                 <EyeOff
                   className="w-4 h-4 cursor-pointer hover:scale-110 transition"
                   onClick={() => setVisibleId(null)}
@@ -200,13 +224,13 @@ export default function PasswordTable({
               ) : (
                 <Eye
                   className="w-4 h-4 cursor-pointer hover:scale-110 transition"
-                  onClick={() => setVisibleId(p.id || p._id)}
+                  onClick={() => setVisibleId(p._id)}
                 />
               )}
               <Edit className="w-4 h-4 cursor-pointer hover:scale-110 transition" />
               <Trash2
                 className="w-4 h-4 cursor-pointer hover:scale-110 transition"
-                onClick={() => moveToBin(p.id || p._id)}
+                onClick={() => moveToBin(p._id)}
               />
             </div>
           </motion.div>
