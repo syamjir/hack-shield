@@ -1,13 +1,12 @@
 import z from "zod";
+import PasswordValidator from "@/lib/passwordValidator";
+const validator = new PasswordValidator();
 
 export const passwordSchema = z.object({
   username: z.string().trim().min(1, { message: "Username is required" }),
   password: z
     .string()
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-      { message: "Password does not meet the requirements" }
-    ),
+    .min(8, { message: "Password must be at least 8 characters long" }),
   websiteUri: z
     .union([z.url({ message: "Invalid website URL" }), z.string().length(0)])
     .optional(),
