@@ -37,7 +37,7 @@ export default function HomePage() {
         >
           {/* Show when signed out */}
 
-          <Link href="/login">
+          <Link href="auth/login">
             <Button
               variant="outline"
               className="border-primary-a20 text-primary-a30 hover:bg-primary-a10/20 transition-all"
@@ -46,7 +46,7 @@ export default function HomePage() {
             </Button>
           </Link>
 
-          <Link href="/signup">
+          <Link href="auth/signup">
             <Button className="bg-primary-a20 hover:bg-primary-a10 text-surface-a0 transition-all">
               Get Started
             </Button>
@@ -55,7 +55,7 @@ export default function HomePage() {
           {/* Show when signed in */}
           <SignedIn>
             <div className="flex items-center border-2 border-primary-a20 rounded-full hover:scale-105 transition-transform ease-in">
-              <UserButton  />
+              <UserButton />
             </div>
           </SignedIn>
         </motion.div>
