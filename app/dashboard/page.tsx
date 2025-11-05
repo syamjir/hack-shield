@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Lock, User, StickyNote, CreditCard, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TabsSection from "@/components/ui/dashboard/TabsSection";
+import { toast } from "sonner";
 
 // ===== TYPES =====
 export type Login = {
@@ -14,6 +15,7 @@ export type Login = {
   site: string;
   username: string;
   strength: "Weak" | "Medium" | "Strong";
+  isDeleted: false | true;
   password: string;
   websiteUri?: string;
 };
@@ -34,6 +36,12 @@ export type BinType = {
   cards: Card[];
 };
 
+type PasswordResponse = {
+  message?: string;
+  error?: string;
+  data: Login[];
+};
+
 export default function DashboardPage() {
   // ===== STATE =====
   const [loading, setLoading] = useState(true);
@@ -42,24 +50,7 @@ export default function DashboardPage() {
   >(null);
 
   // ===== MOCK DATA =====
-  const [logins, setLogins] = useState<Login[]>([
-    {
-      id: 1,
-      site: "Google",
-      username: "dharmi@gmail.com",
-      strength: "Strong",
-      password: "1234",
-      websiteUri: "https://www.google.com",
-    },
-    {
-      id: 2,
-      site: "LinkedIn",
-      username: "dharmishta.r",
-      strength: "Medium",
-      password: "abcd",
-      websiteUri: "https://www.linkedin.com",
-    },
-  ]);
+  const [logins, setLogins] = useState<Login[]>([]);
 
   const [identities, setIdentities] = useState<Identity[]>([
     { id: 1, name: "Personal", email: "dharmi@gmail.com" },
@@ -93,6 +84,42 @@ export default function DashboardPage() {
     const timer = setTimeout(() => setLoading(false), 200);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchPasswords = async () => {
+      try {
+        const res = await fetch("/api/passwords", {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          // userId retrieve in backend login users userId
+        });
+        if (!res.ok) {
+          const errorData: PasswordResponse = await res.json();
+          throw new Error(errorData.error || "Something went wrong");
+        }
+        const data: PasswordResponse = await res.json();
+        const loginData = data.data.filter((data) => data.isDeleted === false);
+        const binData = data.data.filter((data) => data.isDeleted === true);
+        if (isMounted) {
+          setLogins(loginData);
+          setBin((prev) => ({ ...prev, logins: binData }));
+        }
+      } catch (err) {
+        console.error(err);
+        const message =
+          err instanceof Error ? err.message : "Something went wrong";
+        if (isMounted) toast.error(message);
+      }
+    };
+    fetchPasswords();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  console.log(logins);
 
   // ===== ANIMATIONS =====
   const fadeVariants = {
@@ -131,6 +158,8 @@ export default function DashboardPage() {
       count: cards.length,
     },
   ];
+
+  // password data fetch from db
 
   // ===== RENDER =====
   return (
