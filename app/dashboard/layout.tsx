@@ -1,6 +1,6 @@
 "use client";
 
-import { Lock, LogOut, Menu, X, Shield, Settings } from "lucide-react";
+import { Lock, LogOut, Menu, X, Shield, Settings, Home } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,6 +12,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navItems = [
+    {
+      name: "Home",
+      href: "/home",
+      icon: <Home className="w-5 h-5" />,
+    },
     {
       name: "Dashboard",
       href: "/dashboard",
@@ -37,7 +42,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen bg-[var(--surface-a0)] text-[var(--surface-a50)] relative">
       {/* ====== SIDEBAR (Desktop) ====== */}
-      <aside className="hidden md:flex flex-col justify-between bg-[var(--surface-a10)] w-64 p-6 border-r border-[var(--surface-a20)]">
+      <aside className="hidden md:flex flex-col justify-between bg-[var(--surface-a10)] w-64 p-6 border-r border-[var(--surface-a20)] fixed top-0 left-0 h-full">
         <div>
           <div className="flex items-center gap-2 mb-10">
             <Lock className="text-[var(--primary-a20)]" />
@@ -46,7 +51,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </h1>
           </div>
 
-          <nav className="flex flex-col gap-4 text-sm">
+          <nav className="flex flex-col gap-5 text-sm">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -157,11 +162,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </AnimatePresence>
 
       {/* ====== MAIN CONTENT ====== */}
-      <main className="flex-1 px-5 md:px-10 py-20 md:py-10 overflow-y-auto w-full">
+      <main className="flex-1 px-5 md:px-10 pt-20 md:pt-6 md:pb-6  w-full md:ml-64 h-screen overflow-hidden">
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
+          className="h-full overflow-hidden"
         >
           {children}
         </motion.div>
