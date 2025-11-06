@@ -4,11 +4,11 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectToMongo();
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
