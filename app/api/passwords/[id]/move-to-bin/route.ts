@@ -4,12 +4,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectToMongo();
 
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json(
         { error: "Password ID is required" },
@@ -33,7 +33,7 @@ export async function PATCH(
     return NextResponse.json(
       {
         message: "Password moved to bin successfully",
-        password: updatedPassword,
+        data: updatedPassword,
       },
       { status: 200 }
     );
