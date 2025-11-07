@@ -1,18 +1,20 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
-import bcrypt from "bcrypt";
+import { CryptoService } from "@/lib/CryptoService";
 
 export interface IPassword extends Document {
   userId: mongoose.Types.ObjectId;
   site: string;
   username: string;
   password: string;
+  iv?: string;
   strength: "Weak" | "Medium" | "Strong";
   websiteUri?: string;
   isDeleted: boolean;
   deletedAt: Date;
   createdAt: Date;
   updatedAt: Date;
-  comparePassword(password: string): Promise<boolean>;
+  comparePassword(password: string): boolean;
+  decryptPassword(password: string): string;
 }
 
 const PasswordSchema: Schema<IPassword> = new Schema(
@@ -35,6 +37,9 @@ const PasswordSchema: Schema<IPassword> = new Schema(
       required: true,
       select: false,
     },
+    iv: {
+      type: String,
+    },
     strength: {
       type: String,
       enum: ["Weak", "Medium", "Strong"],
@@ -55,20 +60,24 @@ const PasswordSchema: Schema<IPassword> = new Schema(
 );
 
 // hash password before save
-PasswordSchema.pre("save", async function (next) {
+PasswordSchema.pre("save", function (next) {
   if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(
-    this.password,
-    Number(process.env.BCRYPT_SALT_ROUNDS)
-  );
+  const { encrypted, iv } = CryptoService.encrypt(this.password);
+  console.log(iv);
+  this.password = encrypted;
+  this.iv = iv;
   next();
 });
 
 // 🔐 Compare password for check same login credentials
-PasswordSchema.methods.comparePassword = async function (
-  password: string
-): Promise<boolean> {
-  return await bcrypt.compare(password, this.password);
+PasswordSchema.methods.comparePassword = function (password: string): boolean {
+  return CryptoService.comparePassword(password, this.password, this.iv);
+};
+
+// Decrypted password
+PasswordSchema.methods.decryptPassword = function (password: string): string {
+  if (!this.iv) throw new Error("IV is missing");
+  return CryptoService.decrypt(password, this.iv);
 };
 
 const Password: Model<IPassword> =
