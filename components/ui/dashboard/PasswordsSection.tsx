@@ -14,11 +14,11 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
-// import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { Login } from "@/app/dashboard/page";
 import { useUserContext } from "@/contexts/UserContext";
 import { useRouter } from "next/navigation";
+
 interface PasswordsSectionProp {
   setPasswords: React.Dispatch<React.SetStateAction<Login[]>>;
 }
@@ -29,6 +29,7 @@ export default function PasswordsSection({
   const { isSignedIn } = useUserContext();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [newPassword, setNewPassword] = useState<Login>({
     site: "",
     username: "",
@@ -36,19 +37,13 @@ export default function PasswordsSection({
     strength: "Weak",
     websiteUri: "",
   });
-  const [dialogOpen, setDialogOpen] = useState(false);
+
   const router = useRouter();
-  // validator
   const validator = new PasswordValidator();
 
-  // ✅ Add new password (API call)
+  // ✅ Add new password
   const addPassword = async () => {
-    if (
-      !newPassword.site ||
-      !newPassword.username ||
-      !newPassword.password ||
-      !newPassword.strength
-    ) {
+    if (!newPassword.site || !newPassword.username || !newPassword.password) {
       toast.error("Please fill all required fields");
       return;
     }
@@ -75,8 +70,8 @@ export default function PasswordsSection({
         const errorData = await res.json();
         throw new Error(errorData.error || "Something went wrong");
       }
+
       const data = await res.json();
-      console.log(data);
       setPasswords((prev: Login[]) => [...prev, data.password]);
       setNewPassword({
         site: "",
@@ -88,18 +83,16 @@ export default function PasswordsSection({
       toast.success("Password saved successfully!");
       setDialogOpen(false);
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Something went wrong";
-      toast.error(message);
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <section className="px-1 sm:px-1">
+    <section className="px-2 sm:px-1  sm:pb-3 relative">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-3">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-primary-a20">
             Password Vault
@@ -109,13 +102,15 @@ export default function PasswordsSection({
           </p>
         </div>
 
+        {/* Desktop / Tablet Add Button */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="w-full sm:w-auto bg-primary-a20 hover:bg-primary-a30 text-white rounded-xl flex items-center justify-center gap-2">
+            <Button className="hidden sm:flex bg-primary-a20 hover:bg-primary-a30 text-white rounded-xl items-center justify-center gap-2">
               <Plus className="w-4 h-4" /> Add Password
             </Button>
           </DialogTrigger>
 
+          {/* Dialog Content */}
           <DialogContent className="bg-surface-a0 border border-surface-a20 rounded-xl max-w-[90vw] sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="text-primary-a20">
@@ -123,6 +118,7 @@ export default function PasswordsSection({
               </DialogTitle>
             </DialogHeader>
 
+            {/* Inputs */}
             <div className="space-y-4 py-4">
               <Input
                 placeholder="Site Name"
@@ -130,8 +126,9 @@ export default function PasswordsSection({
                 onChange={(e) =>
                   setNewPassword({ ...newPassword, site: e.target.value })
                 }
-                className=" bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-0.5 focus-visible:ring-primary-a0"
+                className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
               />
+
               {newPassword.websiteUri &&
                 !validator.isValidUri(newPassword.websiteUri) && (
                   <motion.p
@@ -140,33 +137,35 @@ export default function PasswordsSection({
                     transition={{ duration: 0.3 }}
                     className="text-sm text-dark-a0/70 flex items-center gap-2 pl-4 "
                   >
-                    {/* Optional icon for emphasis */}
                     <Shield size={16} className="text-danger-a10" /> Please
-                    enter a valid website url
+                    enter a valid website URL
                   </motion.p>
                 )}
+
               <Input
                 placeholder="Website URL (optional)"
                 value={newPassword.websiteUri || ""}
                 onChange={(e) =>
                   setNewPassword({ ...newPassword, websiteUri: e.target.value })
                 }
-                className=" bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-0.5 focus-visible:ring-primary-a0"
+                className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
               />
+
               <Input
                 placeholder="Username / Email"
                 value={newPassword.username}
                 onChange={(e) =>
                   setNewPassword({ ...newPassword, username: e.target.value })
                 }
-                className=" bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-0.5 focus-visible:ring-primary-a0"
+                className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
               />
+
               {newPassword.password && newPassword.strength && (
                 <motion.p
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
-                  className={` pl-4  flex items-center gap-2 text-sm text-dark-a0/70  `}
+                  className="pl-4 flex items-center gap-2 text-sm text-dark-a0/70"
                 >
                   {newPassword.strength === "Strong" ? (
                     <FiCheckCircle className="text-success-a10" size={16} />
@@ -178,6 +177,8 @@ export default function PasswordsSection({
                   Strength: {newPassword.strength}
                 </motion.p>
               )}
+
+              {/* Password Input */}
               <div className="relative">
                 <Input
                   type={showPassword ? "text" : "password"}
@@ -190,13 +191,12 @@ export default function PasswordsSection({
                       strength: validator.calculateStrength(e.target.value),
                     })
                   }
-                  className=" bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-0.5 focus-visible:ring-primary-a0"
+                  className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
                 />
-                {/* Toggle Icon */}
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-dark-a0/50 hover:text-primary-a10/90 bg-surface-tonal-a0 rounded-2xl  p-0.5"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-dark-a0/50 hover:text-primary-a10/90 bg-surface-tonal-a0 rounded-2xl p-0.5"
                 >
                   {showPassword ? (
                     <EyeOff className="text-primary-a0" size={16} />
@@ -209,13 +209,13 @@ export default function PasswordsSection({
 
             <DialogFooter>
               <Button
-                disabled={Boolean(
+                disabled={
                   !newPassword.site ||
-                    !newPassword.username ||
-                    !newPassword.password ||
-                    (newPassword.websiteUri &&
-                      !validator.isValidUri(newPassword.websiteUri))
-                )}
+                  !newPassword.username ||
+                  !newPassword.password ||
+                  (newPassword.websiteUri &&
+                    !validator.isValidUri(newPassword.websiteUri))
+                }
                 onClick={addPassword}
                 className="w-full sm:w-auto bg-primary-a20 hover:bg-primary-a30 text-white rounded-lg"
               >
@@ -231,6 +231,17 @@ export default function PasswordsSection({
               </Button>
             </DialogFooter>
           </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* ✅ Floating Add Button (Mobile only) */}
+      <div className="sm:hidden fixed bottom-20 left-30 w-full flex justify-center z-50">
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-primary-a20 hover:bg-primary-a30 text-white rounded-full shadow-lg flex items-center justify-center gap-2 px-6 py-3">
+              <Plus className="w-5 h-5" />
+            </Button>
+          </DialogTrigger>
         </Dialog>
       </div>
     </section>
