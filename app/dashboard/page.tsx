@@ -243,7 +243,7 @@ export default function DashboardPage() {
               <Button
                 variant="ghost"
                 onClick={() => setActiveSection(null)}
-                className="flex items-center gap-2 mb-6 text-[var(--primary-a20)] hover:text-[var(--primary-a30)]"
+                className="flex items-center gap-2 mb-2 text-[var(--primary-a20)] hover:text-[var(--primary-a30)]"
               >
                 <ArrowLeft className="w-4 h-4" /> Back
               </Button>
