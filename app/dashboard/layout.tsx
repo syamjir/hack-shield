@@ -162,7 +162,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </AnimatePresence>
 
       {/* ====== MAIN CONTENT ====== */}
-      <main className="flex-1 px-5 md:px-10 pt-20 md:pt-6 md:pb-6  w-full md:ml-64 h-screen overflow-hidden">
+      <main className="flex-1 px-5 md:px-10 pt-18 md:pt-6 md:pb-6  w-full md:ml-64 h-screen overflow-hidden">
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
