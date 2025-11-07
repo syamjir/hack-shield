@@ -45,7 +45,7 @@ export default function TabsSection({
       defaultValue={defaultTab}
       value={activeTab}
       onValueChange={setActiveTab}
-      className="mt-5 w-full"
+      className=" w-full"
     >
       {/* Header (Password Vault Info Section) */}
       {type === "logins" && <PasswordsSection setPasswords={setPasswords} />}
@@ -120,7 +120,7 @@ export default function TabsSection({
       {/* Logins */}
       {type === "logins" && (
         <>
-          <TabsContent value="login" className="w-full">
+          <TabsContent value="login" className="w-full ">
             <PasswordTable
               title={type}
               passwords={passwords}
