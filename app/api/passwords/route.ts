@@ -87,13 +87,14 @@ export async function GET(req: NextRequest) {
     // ✅ Retrieve all passwords for the user
     const passwords = await Password.find({ userId }).lean();
 
-    // ✅ Return error if user has not saved any passwords yet
-    if (passwords.length === 0) {
-      return NextResponse.json(
-        { error: "No passwords found for this user" },
-        { status: 404 }
-      );
-    }
+    // ✅ Return empty array if user has not saved any passwords yet
+    return NextResponse.json(
+      {
+        message: "Passwords retrieved successfully",
+        data: passwords || [],
+      },
+      { status: 200 }
+    );
 
     return NextResponse.json(
       {
