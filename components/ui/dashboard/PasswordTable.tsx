@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Edit, Trash2, Globe } from "lucide-react";
-import { BinType, Login } from "@/app/dashboard/page";
+import { Eye, EyeOff, Edit, Trash2, Globe, MoreVertical } from "lucide-react";
 import { toast } from "sonner";
+import { BinType, Login } from "@/app/dashboard/page";
 
 interface PasswordTableProps {
   title: string;
@@ -19,7 +19,9 @@ export default function PasswordTable({
   setPasswords,
   setBin,
 }: PasswordTableProps) {
-  const [visibleId, setVisibleId] = useState<number | null>(null);
+  const [visibleId, setVisibleId] = useState<string | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const moveToBin = async (id: string) => {
     try {
@@ -30,16 +32,12 @@ export default function PasswordTable({
 
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Something went wrong");
-      }
-
+      if (!res.ok) throw new Error(data.error || "Something went wrong");
       toast.success(data.message);
 
-      const deletedPassword = data.data;
-      if (!deletedPassword) return;
+      const deleted = data.data;
+      if (!deleted) return;
 
-      // Determine which key to update based on section title
       const key =
         title === "logins"
           ? "logins"
@@ -49,53 +47,80 @@ export default function PasswordTable({
           ? "notes"
           : "cards";
 
-      // ✅ Update the Bin with the deleted password
-      setBin((prev: BinType) => ({
-        ...prev,
-        [key]: [...prev[key], deletedPassword],
-      }));
-
-      // ✅ Remove from the active password list
-      setPasswords((prev: Login[]) =>
-        prev.filter((p) => p._id !== deletedPassword._id)
-      );
+      setBin((prev) => ({ ...prev, [key]: [...prev[key], deleted] }));
+      setPasswords((prev) => prev.filter((p) => p._id !== deleted._id));
     } catch (err) {
-      console.error("Move to bin failed:", err);
-      const message =
-        err instanceof Error ? err.message : "Something went wrong";
-      toast.error(message);
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+    }
+  };
+
+  const retrievePassword = async (id: string) => {
+    try {
+      setLoadingId(id);
+      const res = await fetch(`/api/passwords/${id}/retrieve-password`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Something went wrong");
+
+      const retrievedPassword = data.data;
+
+      // ✅ Update state:  replace the password in the list
+      setPasswords((prev) => {
+        return prev.map((p) =>
+          p._id === retrievedPassword._id ? retrievedPassword : p
+        );
+      });
+
+      // Show which password is visible
+      setVisibleId(retrievedPassword._id);
+
+      toast.success(data.message);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setLoadingId(null);
     }
   };
 
   return (
     <div className="w-full">
-      {/* ✅ Desktop View */}
-      <div className="hidden lg:block overflow-x-auto rounded-2xl bg-surface-a10/50 backdrop-blur-md shadow-md">
-        <table className="min-w-full text-sm">
-          <thead>
-            <tr className="text-primary-a20 text-left border-b border-surface-a20">
-              <th className="p-4">Site</th>
-              <th className="p-4">Website</th>
-              <th className="p-4">Username</th>
-              <th className="p-4">Password</th>
-              <th className="p-4">Strength</th>
-              <th className="p-4 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {passwords.map((p, i) => (
-              <motion.tr
-                key={p._id}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-                className="hover:bg-surface-a10/70 transition"
-              >
-                <td className="p-4 font-semibold text-dark-a0/50">{p.site}</td>
+      {/* 🌟 Scrollable container with smooth scroll and height limits */}
+      <div
+        className="
+    max-h-[70vh]
+    overflow-y-auto
+    pr-1
+    pb-60 sm:pb-14
+    scroll-pb-60 sm:scroll-pb-14
+    scrollbar-thin scrollbar-thumb-surface-a20 scrollbar-track-transparent
+    hover:scrollbar-thumb-surface-a30
+  "
+      >
+        {passwords.length === 0 && (
+          <p className="text-dark-a0/60 text-sm ">
+            No active passwords. Check the bin or add a new one!
+          </p>
+        )}
 
-                {/* 🌐 Website URI */}
-                <td className="p-4 text-info-a10 underline">
-                  {p.websiteUri ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 p-1">
+          {passwords.map((p, i) => (
+            <motion.div
+              key={p._id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+              className="relative bg-surface-a10/60 rounded-2xl p-5 backdrop-blur-lg shadow-sm hover:shadow-md transition"
+            >
+              {/* Header */}
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                  <h3 className="font-semibold text-lg text-primary-a20">
+                    {p.site}
+                  </h3>
+                  {p.websiteUri && (
                     <a
                       href={
                         p.websiteUri.startsWith("http")
@@ -104,7 +129,7 @@ export default function PasswordTable({
                       }
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1 hover:text-info-a20"
+                      className="text-info-a10 text-sm underline flex items-center gap-1 mt-1 hover:text-info-a20"
                     >
                       <Globe size={14} />
                       {
@@ -115,30 +140,43 @@ export default function PasswordTable({
                         ).hostname
                       }
                     </a>
-                  ) : (
-                    <span className="text-dark-a0/50">—</span>
                   )}
-                </td>
+                </div>
 
-                <td className="p-4 text-dark-a0/50">{p.username}</td>
-
-                <td className="p-4 font-mono text-dark-a0/50">
-                  {visibleId === p._id ? p.password : "••••••••"}
-                </td>
-
-                <td
-                  className={`p-4 ${
+                {/* Strength Badge */}
+                <span
+                  className={`text-xs font-semibold px-2 py-1 rounded-full ${
                     p.strength === "Strong"
-                      ? "text-green-500"
+                      ? "bg-success-a20 text-success-a0"
                       : p.strength === "Medium"
-                      ? "text-yellow-500"
-                      : "text-red-500"
+                      ? "bg-warning-a20 text-warning-a0"
+                      : "bg-danger-a20 text-danger-a0"
                   }`}
                 >
                   {p.strength}
-                </td>
+                </span>
+              </div>
 
-                <td className="p-4 flex justify-end gap-3 text-primary-a20">
+              {/* Info */}
+              <div className="space-y-1 mb-3">
+                <p className="text-sm text-dark-a0/60">
+                  <span className="font-semibold ">Username:</span>{" "}
+                  {p.username || "—"}
+                </p>
+                <p className="font-mono text-dark-a0/70 text-sm">
+                  <span className="font-semibold ">Password:</span>{" "}
+                  {loadingId === p._id
+                    ? "Loading..."
+                    : visibleId === p._id
+                    ? p.password
+                    : "••••••••"}
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-end items-center gap-3 text-primary-a20">
+                {/* Desktop actions */}
+                <div className="hidden sm:flex gap-3">
                   {visibleId === p._id ? (
                     <EyeOff
                       className="w-4 h-4 cursor-pointer hover:scale-110 transition"
@@ -147,94 +185,85 @@ export default function PasswordTable({
                   ) : (
                     <Eye
                       className="w-4 h-4 cursor-pointer hover:scale-110 transition"
-                      onClick={() => setVisibleId(p._id)}
+                      onClick={() => {
+                        if (p._id) retrievePassword(p._id);
+                      }}
                     />
                   )}
                   <Edit className="w-4 h-4 cursor-pointer hover:scale-110 transition" />
                   <Trash2
                     className="w-4 h-4 cursor-pointer hover:scale-110 transition"
-                    onClick={() => moveToBin(p._id)}
+                    onClick={() => {
+                      if (p._id) moveToBin(p._id);
+                    }}
                   />
-                </td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                </div>
 
-      {/* ✅ Mobile + Tablet View */}
-      <div className="lg:hidden space-y-3">
-        {passwords.map((p, i) => (
-          <motion.div
-            key={p._id}
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 }}
-            className="bg-surface-a10/50 rounded-xl p-4 shadow-sm backdrop-blur-md"
-          >
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="font-semibold text-primary-a20">{p.site}</h3>
-              <span
-                className={`text-xs font-semibold ${
-                  p.strength === "Strong"
-                    ? "text-green-500"
-                    : p.strength === "Medium"
-                    ? "text-yellow-500"
-                    : "text-red-500"
-                }`}
-              >
-                {p.strength}
-              </span>
-            </div>
-
-            {/* 🌐 Website */}
-            {p.websiteUri && (
-              <a
-                href={
-                  p.websiteUri.startsWith("http")
-                    ? p.websiteUri
-                    : `https://${p.websiteUri}`
-                }
-                target="_blank"
-                rel="noopener noreferrer"
-                className=" text-info-a0 text-sm underline flex items-center gap-1 mb-2"
-              >
-                <Globe size={14} />
-                {
-                  new URL(
-                    p.websiteUri.startsWith("http")
-                      ? p.websiteUri
-                      : `https://${p.websiteUri}`
-                  ).hostname
-                }
-              </a>
-            )}
-
-            <p className="text-sm text-surface-a40 mb-2">{p.username}</p>
-            <p className="font-mono mb-3">
-              {visibleId === p._id ? p.password : "••••••••"}
-            </p>
-
-            <div className="flex justify-end gap-3 text-primary-a20">
-              {visibleId === p._id ? (
-                <EyeOff
-                  className="w-4 h-4 cursor-pointer hover:scale-110 transition"
-                  onClick={() => setVisibleId(null)}
-                />
-              ) : (
-                <Eye
-                  className="w-4 h-4 cursor-pointer hover:scale-110 transition"
-                  onClick={() => setVisibleId(p._id)}
-                />
-              )}
-              <Edit className="w-4 h-4 cursor-pointer hover:scale-110 transition" />
-              <Trash2
-                className="w-4 h-4 cursor-pointer hover:scale-110 transition"
-                onClick={() => moveToBin(p._id)}
-              />
-            </div>
-          </motion.div>
-        ))}
+                {/* Mobile menu */}
+                {/* Mobile menu */}
+                <div className="sm:hidden relative">
+                  <MoreVertical
+                    className="w-5 h-5 cursor-pointer hover:text-primary-a40"
+                    onClick={() => {
+                      if (p._id) {
+                        setOpenMenuId(openMenuId === p._id ? null : p._id);
+                      }
+                    }}
+                  />
+                  {openMenuId === p._id && (
+                    <div
+                      className="fixed z-[999] bg-surface-a10 backdrop-blur-xl rounded-lg shadow-lg border border-surface-tonal-a30"
+                      style={{
+                        top: "2%",
+                        left: "66%",
+                        transform: "translateX(-40%)",
+                        width: "130px",
+                      }}
+                    >
+                      <button
+                        onClick={() => {
+                          if (p._id) {
+                            if (visibleId === p._id) {
+                              setVisibleId(null);
+                            } else {
+                              retrievePassword(p._id);
+                            }
+                            setOpenMenuId(null);
+                          }
+                        }}
+                        className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-surface-a20 hover:rounded-t-lg w-full text-left"
+                      >
+                        {visibleId === p._id ? (
+                          <EyeOff size={14} />
+                        ) : (
+                          <Eye size={14} />
+                        )}
+                        {visibleId === p._id ? "Hide" : "Show"}
+                      </button>
+                      <button
+                        className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-surface-a20 w-full text-left"
+                        onClick={() => setOpenMenuId(null)}
+                      >
+                        <Edit size={14} /> Edit
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (p._id) {
+                            moveToBin(p._id);
+                            setOpenMenuId(null);
+                          }
+                        }}
+                        className="flex items-center gap-2 px-3 py-2 text-sm text-danger-a0 hover:bg-surface-a20 hover:rounded-b-lg w-full text-left"
+                      >
+                        <Trash2 size={14} /> Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </div>
   );
