@@ -2,9 +2,29 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Edit, Trash2, Globe, MoreVertical } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Edit,
+  Trash2,
+  Globe,
+  MoreVertical,
+  Loader2,
+  Save,
+} from "lucide-react";
 import { toast } from "sonner";
 import { BinType, Login } from "@/app/dashboard/page";
+import { Button } from "../button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../dialog";
+import { FiAlertCircle, FiCheckCircle, FiLock } from "react-icons/fi";
+import { Input } from "../input";
+import PasswordValidator from "@/lib/passwordValidator";
 
 interface PasswordTableProps {
   title: string;
@@ -22,6 +42,12 @@ export default function PasswordTable({
   const [visibleId, setVisibleId] = useState<string | null>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [editingPassword, setEditingPassword] = useState<Login | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isEditLoading, setIsEditLoading] = useState(false);
+
+  const validator = new PasswordValidator();
 
   const moveToBin = async (id: string) => {
     try {
@@ -76,12 +102,51 @@ export default function PasswordTable({
 
       // Show which password is visible
       setVisibleId(retrievedPassword._id);
-
+      setEditingPassword(retrievedPassword);
       toast.success(data.message);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setLoadingId(null);
+    }
+  };
+
+  const editPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const updatedData = {
+      site: formData.get("site") as string,
+      username: formData.get("username") as string,
+      password: formData.get("password") as string,
+      websiteUri: formData.get("websiteUri") as string,
+    };
+    console.log(updatedData);
+    try {
+      if (!editingPassword) return;
+      setIsEditLoading(true);
+      const strength = validator.calculateStrength(updatedData.password);
+      const res = await fetch(
+        `/api/passwords/${editingPassword._id}/edit-password`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...updatedData, strength }),
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update");
+      setVisibleId(null);
+      setPasswords((prev) =>
+        prev.map((p) => (p._id === data.data._id ? data.data : p))
+      );
+
+      toast.success("Password updated successfully");
+      setIsEditModalOpen(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setIsEditLoading(false);
     }
   };
 
@@ -190,7 +255,15 @@ export default function PasswordTable({
                       }}
                     />
                   )}
-                  <Edit className="w-4 h-4 cursor-pointer hover:scale-110 transition" />
+                  <Edit
+                    className="w-4 h-4 cursor-pointer hover:scale-110 transition"
+                    onClick={() => {
+                      if (p._id) {
+                        retrievePassword(p._id);
+                        setIsEditModalOpen(true);
+                      }
+                    }}
+                  />
                   <Trash2
                     className="w-4 h-4 cursor-pointer hover:scale-110 transition"
                     onClick={() => {
@@ -199,7 +272,6 @@ export default function PasswordTable({
                   />
                 </div>
 
-                {/* Mobile menu */}
                 {/* Mobile menu */}
                 <div className="sm:hidden relative">
                   <MoreVertical
@@ -242,7 +314,13 @@ export default function PasswordTable({
                       </button>
                       <button
                         className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-surface-a20 w-full text-left"
-                        onClick={() => setOpenMenuId(null)}
+                        onClick={() => {
+                          if (p._id) {
+                            setOpenMenuId(null);
+                            retrievePassword(p._id);
+                            setIsEditModalOpen(true);
+                          }
+                        }}
                       >
                         <Edit size={14} /> Edit
                       </button>
@@ -265,6 +343,125 @@ export default function PasswordTable({
           ))}
         </div>
       </div>
+      {/* Editing form */}
+      {isEditModalOpen && editingPassword && (
+        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+          <DialogContent className="bg-surface-a0 border border-surface-a20 rounded-xl max-w-[90vw] sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-primary-a20">
+                Edit Password
+              </DialogTitle>
+            </DialogHeader>
+
+            <form onSubmit={(e) => editPassword(e)} className="space-y-4 py-4">
+              {/* Site */}
+              <Input
+                placeholder="Site Name"
+                name="site"
+                defaultValue={editingPassword.site}
+                className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
+              />
+
+              {/* Website URL */}
+              <Input
+                placeholder="Website URL (optional)"
+                name="websiteUri"
+                defaultValue={editingPassword.websiteUri}
+                className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
+              />
+
+              {/* Username */}
+              <Input
+                placeholder="Username / Email"
+                name="username"
+                defaultValue={editingPassword.username}
+                className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
+              />
+
+              {/* Password Input with toggle */}
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter Password"
+                  name="password"
+                  defaultValue={editingPassword.password}
+                  onChange={(e) =>
+                    setEditingPassword({
+                      ...editingPassword,
+                      password: e.target.value,
+                      strength: validator.calculateStrength(e.target.value),
+                    })
+                  }
+                  className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-dark-a0/50 hover:text-primary-a10/90 bg-surface-tonal-a0 rounded-2xl p-0.5"
+                >
+                  {showPassword ? (
+                    <EyeOff className="text-primary-a0" size={16} />
+                  ) : (
+                    <Eye size={16} />
+                  )}
+                </button>
+              </div>
+
+              {/* Password strength indicator */}
+              {editingPassword.password && editingPassword.strength && (
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="pl-4 flex items-center gap-2 text-sm text-dark-a0/70"
+                >
+                  {editingPassword.strength === "Strong" ? (
+                    <FiCheckCircle className="text-success-a10" size={16} />
+                  ) : editingPassword.strength === "Medium" ? (
+                    <FiAlertCircle className="text-warning-a10" size={16} />
+                  ) : (
+                    <FiLock className="text-danger-a10" size={16} />
+                  )}
+                  Strength: {editingPassword.strength}
+                </motion.p>
+              )}
+
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="w-full sm:w-auto bg-gray-200 hover:bg-gray-300 text-dark-a0 rounded-lg"
+                >
+                  Cancel
+                </Button>
+
+                <Button
+                  type="submit"
+                  disabled={
+                    !editingPassword.site ||
+                    !editingPassword.username ||
+                    !editingPassword.password ||
+                    (!!editingPassword.websiteUri &&
+                      !validator.isValidUri(editingPassword.websiteUri))
+                  }
+                  className="w-full sm:w-auto bg-primary-a20 hover:bg-primary-a30 text-white rounded-lg"
+                >
+                  {isEditLoading ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin" /> Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save size={18} /> Save Changes
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
