@@ -51,10 +51,13 @@ export async function POST(req: NextRequest) {
 
       const createdPassword = await newPassword.save();
 
+      // ✅ avoid leaking sensitive data
+      const { password: _, iv, ...safePassword } = createdPassword.toObject();
+
       return NextResponse.json(
         {
           message: "Password saved successfully",
-          password: createdPassword,
+          password: safePassword,
         },
         { status: 201 }
       );
@@ -92,14 +95,6 @@ export async function GET(req: NextRequest) {
       {
         message: "Passwords retrieved successfully",
         data: passwords || [],
-      },
-      { status: 200 }
-    );
-
-    return NextResponse.json(
-      {
-        message: "Passwords retrieved successfully",
-        data: passwords,
       },
       { status: 200 }
     );
