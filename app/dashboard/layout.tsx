@@ -1,6 +1,19 @@
 "use client";
 
-import { Lock, LogOut, Menu, X, Shield, Settings, Home } from "lucide-react";
+import {
+  Lock,
+  LogOut,
+  Menu,
+  X,
+  Shield,
+  Settings,
+  Home,
+  UserSquare2,
+  FileText,
+  CreditCard,
+  ChevronRight,
+} from "lucide-react";
+
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,31 +25,100 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navItems = [
+    { name: "Home", href: "/home", icon: <Home className="w-5 h-5" /> },
     {
-      name: "Home",
-      href: "/home",
-      icon: <Home className="w-5 h-5" />,
-    },
-    {
-      name: "Dashboard",
+      name: "Overview",
       href: "/dashboard",
       icon: <Lock className="w-5 h-5" />,
     },
     {
-      name: "Security",
-      href: "/dashboard/security",
-      icon: <Shield className="w-5 h-5" />,
+      name: "Logins",
+      href: "/dashboard/logins",
+      icon: <Lock className="w-5 h-5" />,
+    },
+    {
+      name: "Identities",
+      href: "/dashboard/identities",
+      icon: <UserSquare2 className="w-5 h-5" />,
+    },
+    {
+      name: "Notes",
+      href: "/dashboard/notes",
+      icon: <FileText className="w-5 h-5" />,
+    },
+    {
+      name: "Cards",
+      href: "/dashboard/cards",
+      icon: <CreditCard className="w-5 h-5" />,
     },
     {
       name: "Settings",
       href: "/dashboard/settings",
       icon: <Settings className="w-5 h-5" />,
     },
+    {
+      name: "Security",
+      href: "/dashboard/security",
+      icon: <Shield className="w-5 h-5" />,
+    },
   ];
 
   const handleLogout = () => {
     setMenuOpen(false);
     router.push("/");
+  };
+
+  // Breadcrumbs
+  const Breadcrumbs = () => {
+    const pathParts = pathname.split("/").filter(Boolean);
+    const nameMap: Record<string, string> = {
+      dashboard: "Overview",
+      logins: "Logins",
+      identities: "Identities",
+      notes: "Secure Notes",
+      cards: "Cards",
+      bin: "Bin",
+      settings: "Settings",
+      security: "Security",
+      home: "Home",
+    };
+
+    const breadcrumbs = pathParts.map((part, index) => {
+      const href = "/" + pathParts.slice(0, index + 1).join("/");
+      return { name: nameMap[part] || part, href };
+    });
+
+    return (
+      <nav
+        className="flex items-center gap-1 text-sm text-[var(--surface-a40)] mb-4 overflow-x-auto whitespace-nowrap"
+        aria-label="Breadcrumb"
+      >
+        <Link
+          href="/dashboard"
+          className="hover:text-[var(--primary-a20)] transition"
+        >
+          Dashboard
+        </Link>
+
+        {breadcrumbs.map((crumb, index) => (
+          <div key={crumb.href} className="flex items-center gap-1">
+            <ChevronRight size={14} className="text-[var(--surface-a30)]" />
+            {index === breadcrumbs.length - 1 ? (
+              <span className="text-[var(--primary-a20)] font-medium">
+                {crumb.name}
+              </span>
+            ) : (
+              <Link
+                href={crumb.href}
+                className="hover:text-[var(--primary-a20)] transition"
+              >
+                {crumb.name}
+              </Link>
+            )}
+          </div>
+        ))}
+      </nav>
+    );
   };
 
   return (
@@ -50,7 +132,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               PassKeeper
             </h1>
           </div>
-
           <nav className="flex flex-col gap-5 text-sm">
             {navItems.map((item) => (
               <Link
@@ -68,7 +149,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             ))}
           </nav>
         </div>
-
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 text-[var(--surface-a40)] hover:text-[var(--primary-a20)] cursor-pointer"
@@ -79,7 +159,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </aside>
 
       {/* ====== MOBILE HEADER ====== */}
-      <div className="fixed md:hidden top-0 left-0 right-0 z-50 bg-[var(--surface-a10)] border-b border-[var(--surface-a20)] flex items-center justify-around p-4">
+      <div className="fixed md:hidden top-0 left-0 right-0 z-50 bg-[var(--surface-a10)] border-b border-[var(--surface-a20)] flex items-center justify-between p-4">
         <div className="flex items-center gap-2">
           <Lock className="text-[var(--primary-a20)] w-5 h-5" />
           <h1 className="text-lg font-semibold text-[var(--primary-a20)]">
@@ -94,11 +174,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </button>
       </div>
 
-      {/* ====== MOBILE SIDEBAR (Slide + Overlay) ====== */}
+      {/* ====== MOBILE SIDEBAR ====== */}
       <AnimatePresence>
         {menuOpen && (
           <>
-            {/* Dim background */}
             <motion.div
               key="overlay"
               className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
@@ -107,8 +186,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               exit={{ opacity: 0 }}
               onClick={() => setMenuOpen(false)}
             />
-
-            {/* Sidebar */}
             <motion.div
               key="mobile-menu"
               initial={{ x: "-100%" }}
@@ -129,7 +206,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                     <X className="text-[var(--primary-a20)] w-5 h-5" />
                   </button>
                 </div>
-
                 <nav className="flex flex-col gap-4 text-sm">
                   {navItems.map((item) => (
                     <Link
@@ -148,7 +224,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   ))}
                 </nav>
               </div>
-
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-3 mt-6 text-[var(--surface-a40)] hover:text-[var(--primary-a20)] cursor-pointer"
@@ -162,14 +237,18 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </AnimatePresence>
 
       {/* ====== MAIN CONTENT ====== */}
-      <main className="flex-1 px-5 md:px-10 pt-18 md:pt-6 md:pb-6  w-full md:ml-64 h-screen overflow-hidden">
+      <main className=" flex-1 sm:pt-0 pt-13  px-4 sm:px-6 lg:px-10 md:ml-64 overflow-y-auto h-screen">
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className="h-full overflow-hidden"
+          className="pb-24 relative"
         >
-          {children}
+          <div className="sticky top-0 sm:z-50 z-0 bg-surface-a0 pt-6 pb-1 ">
+            <Breadcrumbs />
+          </div>
+
+          <div className="pt-1">{children}</div>
         </motion.div>
       </main>
 
