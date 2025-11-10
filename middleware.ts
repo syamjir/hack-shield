@@ -13,7 +13,7 @@ export const config = {
   ],
   runtime: "nodejs",
 };
-const isClerkProtected = createRouteMatcher(["/home(.*)"]);
+const isClerkProtected = createRouteMatcher(["/home(.*)", "/auth(.*)"]);
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
   // -------------- Clerk Middleware logic --------------
