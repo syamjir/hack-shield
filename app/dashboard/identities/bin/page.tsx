@@ -2,23 +2,18 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { Identity } from "@/types";
+import { Button } from "@/components/ui/button";
+import { useDashboard } from "@/contexts/DashboardContext";
 
 export default function IdentitiesBinPage() {
-  const [binIdentities, setBinIdentities] = useState<Identity[]>([
-    {
-      _id: "2",
-      fullName: "Jane Doe",
-      email: "jane@example.com",
-      address: "456 Elm Street",
-      city: "Los Angeles",
-      country: "USA",
-    },
-  ]);
+  const { bins, identities, setIdentities } = useDashboard();
 
   const [restoringId, setRestoringId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const binIdentities = bins.identities;
 
   const restoreIdentity = async (id: string) => {
     try {
@@ -28,7 +23,15 @@ export default function IdentitiesBinPage() {
       const restored = binIdentities.find((i) => i._id === id);
       if (!restored) return;
 
-      setBinIdentities((prev) => prev.filter((i) => i._id !== id));
+      // Move it back to identities list
+      setIdentities((prev) => [...prev, { ...restored, isDeleted: false }]);
+
+      // Optionally: remove from bin if you have setBins in context
+      // setBins((prev) => ({
+      //   ...prev,
+      //   identities: prev.identities.filter((i) => i._id !== id),
+      // }));
+
       toast.success(`Restored "${restored.fullName}"`);
     } catch {
       toast.error("Failed to restore");
@@ -37,10 +40,25 @@ export default function IdentitiesBinPage() {
     }
   };
 
-  return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-semibold text-primary-a20">Identity Bin</h1>
+  const deleteForever = async (id: string) => {
+    try {
+      setDeleteId(id);
+      await new Promise((res) => setTimeout(res, 600));
+      // If setBins existed, you would do this:
+      // setBins((prev) => ({
+      //   ...prev,
+      //   identities: prev.identities.filter((i) => i._id !== id),
+      // }));
+      toast.success("Identity deleted permanently");
+    } catch {
+      toast.error("Failed to delete identity");
+    } finally {
+      setDeleteId(null);
+    }
+  };
 
+  return (
+    <div className="space-y-4 mt-8">
       {binIdentities.length === 0 ? (
         <p className="text-dark-a0/60 text-sm">No deleted identities.</p>
       ) : (
@@ -64,7 +82,7 @@ export default function IdentitiesBinPage() {
                 </p>
               )}
 
-              <div className="flex justify-end mt-4">
+              <div className="flex justify-end mt-4 gap-4">
                 <button
                   onClick={() => restoreIdentity(identity._id!)}
                   disabled={restoringId === identity._id}
@@ -73,6 +91,17 @@ export default function IdentitiesBinPage() {
                   <RotateCcw size={14} />
                   {restoringId === identity._id ? "Restoring..." : "Restore"}
                 </button>
+
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => deleteForever(identity._id!)}
+                  disabled={deleteId === identity._id}
+                  className="text-red-500 text-sm flex items-center gap-1"
+                >
+                  <Trash2 size={14} />
+                  {deleteId === identity._id ? "Deleting..." : "Delete"}
+                </Button>
               </div>
             </motion.div>
           ))}
