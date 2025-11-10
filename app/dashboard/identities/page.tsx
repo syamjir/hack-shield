@@ -12,6 +12,7 @@ import {
   MapPin,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useDashboard } from "@/contexts/DashboardContext";
 
 export type Identity = {
   _id?: string;
@@ -32,52 +33,7 @@ export type Identity = {
 };
 
 export default function IdentitiesPage() {
-  const [identities, setIdentities] = useState<Identity[]>([
-    {
-      _id: "1",
-      fullName: "John Doe",
-      email: "john@example.com",
-      phone: "+1 555 123 4567",
-      address: "123 Main Street",
-      city: "New York",
-      state: "NY",
-      postalCode: "10001",
-      country: "USA",
-      company: "OpenAI",
-      dateOfBirth: "1990-02-15",
-      notes: "VIP Client",
-    },
-    {
-      _id: "2",
-      fullName: "Jane Smith",
-      email: "jane@example.com",
-      phone: "+1 555 987 6543",
-      company: "TechCorp",
-      dateOfBirth: "1988-06-25",
-    },
-    {
-      _id: "3",
-      fullName: "John Doe",
-      email: "john@example.com",
-      phone: "+1 555 123 4567",
-      address: "123 Main Street",
-      city: "New York",
-      state: "NY",
-      postalCode: "10001",
-      country: "USA",
-      company: "OpenAI",
-      dateOfBirth: "1990-02-15",
-      notes: "VIP Client",
-    },
-    {
-      _id: "4",
-      fullName: "Jane Smith",
-      email: "jane@example.com",
-      phone: "+1 555 987 6543",
-      company: "TechCorp",
-      dateOfBirth: "1988-06-25",
-    },
-  ]);
+  const { identities, setIdentities } = useDashboard();
 
   const moveToBin = async (id: string) => {
     try {
