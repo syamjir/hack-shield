@@ -11,7 +11,7 @@ export interface IIdentity extends Document {
   postalCode?: string;
   country?: string;
   company?: string;
-  dateOfBirth?: Date;
+  dateOfBirth?: string;
   notes?: string;
   isDeleted: boolean;
   createdAt?: Date;
@@ -70,7 +70,7 @@ const IdentitySchema: Schema<IIdentity> = new Schema(
       trim: true,
     },
     dateOfBirth: {
-      type: Date,
+      type: String,
     },
     isDeleted: {
       type: Boolean,
