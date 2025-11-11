@@ -59,7 +59,7 @@ export default async function IdentityServer() {
 
     const { identities, binData } = await fetchIdentities(jwt);
 
-    return <IdentitiesClient identities={identities} binData={binData} />;
+    return <IdentitiesClient identitiesFromDB={identities} binDataFromDB={binData} />;
   } catch (err) {
     console.error("Error fetching identities:", err);
     return (
