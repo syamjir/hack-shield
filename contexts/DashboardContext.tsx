@@ -9,7 +9,7 @@ export type Login = {
   site: string;
   username: string;
   strength: "Weak" | "Medium" | "Strong";
-  isDeleted: false | true;
+  isDeleted?: false | true;
   password: string;
   websiteUri?: string;
 };
@@ -28,7 +28,7 @@ export type Identity = {
   company?: string;
   dateOfBirth?: string;
   notes?: string;
-  isDeleted: false | true;
+  isDeleted?: false | true;
 };
 
 export type SecureNote = { _id: string; title: string; content: string };
@@ -68,56 +68,7 @@ const DashboardContext = createContext<DashboardContextType | null>(null);
 
 // ---------- Provider ----------
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
-  const [identities, setIdentities] = useState<Identity[]>([
-    {
-      _id: "1",
-      fullName: "John Doe",
-      email: "john@example.com",
-      phone: "+1 555 123 4567",
-      address: "123 Main Street",
-      city: "New York",
-      state: "NY",
-      postalCode: "10001",
-      country: "USA",
-      company: "OpenAI",
-      dateOfBirth: "1990-02-15",
-      notes: "VIP Client",
-      isDeleted: false,
-    },
-    {
-      _id: "2",
-      fullName: "Jane Smith",
-      email: "jane@example.com",
-      phone: "+1 555 987 6543",
-      company: "TechCorp",
-      dateOfBirth: "1988-06-25",
-      isDeleted: false,
-    },
-    {
-      _id: "3",
-      fullName: "John Doe",
-      email: "john@example.com",
-      phone: "+1 555 123 4567",
-      address: "123 Main Street",
-      city: "New York",
-      state: "NY",
-      postalCode: "10001",
-      country: "USA",
-      company: "OpenAI",
-      dateOfBirth: "1990-02-15",
-      notes: "VIP Client",
-      isDeleted: false,
-    },
-    {
-      _id: "4",
-      fullName: "Jane Smith",
-      email: "jane@example.com",
-      phone: "+1 555 987 6543",
-      company: "TechCorp",
-      dateOfBirth: "1988-06-25",
-      isDeleted: false,
-    },
-  ]);
+  const [identities, setIdentities] = useState<Identity[]>([]);
   const [logins, setLogins] = useState<Login[]>([
     {
       _id: "1",
@@ -144,56 +95,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   const [bins, setBins] = useState<BinType>({
     logins: [],
-    identities: [
-      {
-        _id: "1",
-        fullName: "John Doe",
-        email: "john@example.com",
-        phone: "+1 555 123 4567",
-        address: "123 Main Street",
-        city: "New York",
-        state: "NY",
-        postalCode: "10001",
-        country: "USA",
-        company: "OpenAI",
-        dateOfBirth: "1990-02-15",
-        notes: "VIP Client",
-        isDeleted: false,
-      },
-      {
-        _id: "2",
-        fullName: "Jane Smith",
-        email: "jane@example.com",
-        phone: "+1 555 987 6543",
-        company: "TechCorp",
-        dateOfBirth: "1988-06-25",
-        isDeleted: false,
-      },
-      {
-        _id: "3",
-        fullName: "John Doe",
-        email: "john@example.com",
-        phone: "+1 555 123 4567",
-        address: "123 Main Street",
-        city: "New York",
-        state: "NY",
-        postalCode: "10001",
-        country: "USA",
-        company: "OpenAI",
-        dateOfBirth: "1990-02-15",
-        notes: "VIP Client",
-        isDeleted: false,
-      },
-      {
-        _id: "4",
-        fullName: "Jane Smith",
-        email: "jane@example.com",
-        phone: "+1 555 987 6543",
-        company: "TechCorp",
-        dateOfBirth: "1988-06-25",
-        isDeleted: false,
-      },
-    ],
+    identities: [],
     notes: [],
     cards: [],
   });
