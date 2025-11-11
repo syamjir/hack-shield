@@ -26,7 +26,11 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   const url = req.nextUrl.pathname;
 
   // Protect only dashboard and API/password routes
-  if (url.startsWith("/dashboard") || url.startsWith("/api/passwords")) {
+  if (
+    url.startsWith("/dashboard") ||
+    url.startsWith("/api/passwords") ||
+    url.startsWith("/api/identities")
+  ) {
     // ✅ Get JWT from cookies
     const token = req.cookies.get("jwt")?.value;
 
@@ -45,7 +49,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
       // Decode or verify JWT
       const jwtService = new JwtService();
       const decoded = await jwtService.decodeJwtToken(token);
-
+      console.log(decoded.id);
       // ✅ Forward user ID to downstream routes
       const headers = new Headers(req.headers);
       headers.set("userId", decoded.id);
