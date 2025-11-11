@@ -16,22 +16,22 @@ import type { Identity } from "./IdentitiesServer";
 import { useEffect } from "react";
 
 type IdentitiesClientProps = {
-  identities: Identity[];
-  binData: Identity[];
+  identitiesFromDB: Identity[];
+  binDataFromDB: Identity[];
 };
 
 export default function IdentitiesClient({
-  identities,
-  binData,
+  identitiesFromDB,
+  binDataFromDB,
 }: IdentitiesClientProps) {
-  const { setIdentities, setBins } = useDashboard();
+  const { setIdentities, setBins, identities } = useDashboard();
 
   // Initialize context state with fetched data
   // (This runs only once when the client mounts)
   useEffect(() => {
-    setIdentities(identities);
-    setBins((prev) => ({ ...prev, identities: binData }));
-  }, [identities, binData, setIdentities, setBins]);
+    setIdentities(identitiesFromDB);
+    setBins((prev) => ({ ...prev, identities: binDataFromDB }));
+  }, [identitiesFromDB, binDataFromDB, setIdentities, setBins]);
 
   const moveToBin = (id: string) => {
     const deleted = identities.find((i) => i._id === id);
