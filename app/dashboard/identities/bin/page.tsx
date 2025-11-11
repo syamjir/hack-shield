@@ -62,14 +62,14 @@ export default function IdentitiesBinPage() {
       {binIdentities.length === 0 ? (
         <p className="text-dark-a0/60 text-sm">No deleted identities.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4  ">
           {binIdentities.map((identity, i) => (
             <motion.div
               key={identity._id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
-              className="bg-surface-a10/60 rounded-xl p-5 shadow-sm hover:shadow-md transition"
+              className="bg-surface-a10/60 rounded-xl p-5 shadow-sm hover:shadow-md  border border-surface-a20 transition-transform hover:scale-102"
             >
               <h3 className="font-semibold text-lg text-primary-a20">
                 {identity.fullName}
@@ -86,22 +86,20 @@ export default function IdentitiesBinPage() {
                 <button
                   onClick={() => restoreIdentity(identity._id!)}
                   disabled={restoringId === identity._id}
-                  className="text-success-a10 hover:text-success-a20 text-sm flex items-center gap-1"
+                  className="text-success-a10 hover:text-success-a20 text-sm flex items-center gap-1 hover:scale-105 transition cursor-pointer "
                 >
                   <RotateCcw size={14} />
                   {restoringId === identity._id ? "Restoring..." : "Restore"}
                 </button>
 
-                <Button
-                  size="sm"
-                  variant="ghost"
+                <button
                   onClick={() => deleteForever(identity._id!)}
                   disabled={deleteId === identity._id}
-                  className="text-red-500 text-sm flex items-center gap-1"
+                  className="text-danger-a0 hover:text-danger-a10 hover:scale-105 cursor-pointer text-sm flex transition items-center gap-1"
                 >
                   <Trash2 size={14} />
                   {deleteId === identity._id ? "Deleting..." : "Delete"}
-                </Button>
+                </button>
               </div>
             </motion.div>
           ))}
