@@ -10,7 +10,7 @@ export const identitySchema = z.object({
   postalCode: z.string().trim().optional(),
   country: z.string().trim().optional(),
   company: z.string().trim().optional(),
-  dateOfBirth: z.date().optional(),
+  dateOfBirth: z.string().optional(),
   notes: z.string().trim().optional(),
 });
 
