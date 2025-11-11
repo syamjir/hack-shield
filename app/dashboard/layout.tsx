@@ -29,37 +29,37 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     { name: "Home", href: "/home", icon: <Home className="w-5 h-5" /> },
     {
       name: "Overview",
-      href: "/dashboard",
+      href: ["/dashboard"],
       icon: <Lock className="w-5 h-5" />,
     },
     {
       name: "Logins",
-      href: "/dashboard/logins",
+      href: ["/dashboard/logins"],
       icon: <Lock className="w-5 h-5" />,
     },
     {
       name: "Identities",
-      href: "/dashboard/identities",
+      href: ["/dashboard/identities", "/dashboard/identities/bin"],
       icon: <UserSquare2 className="w-5 h-5" />,
     },
     {
       name: "Notes",
-      href: "/dashboard/notes",
+      href: ["/dashboard/notes"],
       icon: <FileText className="w-5 h-5" />,
     },
     {
       name: "Cards",
-      href: "/dashboard/cards",
+      href: ["/dashboard/cards"],
       icon: <CreditCard className="w-5 h-5" />,
     },
     {
       name: "Settings",
-      href: "/dashboard/settings",
+      href: ["/dashboard/settings"],
       icon: <Settings className="w-5 h-5" />,
     },
     {
       name: "Security",
-      href: "/dashboard/security",
+      href: ["/dashboard/security"],
       icon: <Shield className="w-5 h-5" />,
     },
   ];
@@ -122,6 +122,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     );
   };
 
+  const isActive = (href: string | string[]) =>
+    Array.isArray(href) ? href.includes(pathname) : pathname === href;
+
+  const getDefaultHref = (href: string | string[]) =>
+    Array.isArray(href) ? href[0] : href;
+
   return (
     <DashboardProvider>
       <div className="flex min-h-screen bg-[var(--surface-a0)] text-[var(--surface-a50)] relative">
@@ -137,10 +143,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <nav className="flex flex-col gap-5 text-sm">
               {navItems.map((item) => (
                 <Link
-                  key={item.href}
-                  href={item.href}
+                  key={getDefaultHref(item.href)}
+                  href={getDefaultHref(item.href)}
                   className={`flex items-center gap-2 transition ${
-                    pathname === item.href
+                    isActive(item.href)
                       ? "text-[var(--primary-a20)] font-medium"
                       : "text-[var(--surface-a40)] hover:text-[var(--primary-a20)]"
                   }`}
@@ -215,11 +221,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                   <nav className="flex flex-col gap-4 text-sm">
                     {navItems.map((item) => (
                       <Link
-                        key={item.href}
-                        href={item.href}
+                        key={getDefaultHref(item.href)}
+                        href={getDefaultHref(item.href)}
                         onClick={() => setMenuOpen(false)}
                         className={`flex items-center gap-2 transition ${
-                          pathname === item.href
+                          isActive(item.href)
                             ? "text-[var(--primary-a20)] font-medium"
                             : "text-[var(--surface-a40)] hover:text-[var(--primary-a20)]"
                         }`}
@@ -243,14 +249,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </AnimatePresence>
 
         {/* ====== MAIN CONTENT ====== */}
-        <main className=" flex-1 sm:pt-0 pt-13  px-4 sm:px-6 lg:px-10 md:ml-64 overflow-y-auto h-screen">
+        <main className="flex-1 sm:pt-0 pt-13 px-4 sm:px-6 lg:px-10 md:ml-64 overflow-y-auto h-screen">
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
             className="pb-24 relative"
           >
-            <div className="sticky top-0 sm:z-50 z-0 bg-surface-a0 pt-6 pb-1 ">
+            <div className="sticky top-0 sm:z-50 z-0 bg-surface-a0 pt-6 pb-1">
               <Breadcrumbs />
             </div>
 
@@ -262,10 +268,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <nav className="fixed bottom-0 left-0 right-0 md:hidden bg-[var(--surface-a10)] border-t border-[var(--surface-a20)] flex justify-around py-3 z-30">
           {navItems.map((item) => (
             <Link
-              key={item.href}
-              href={item.href}
+              key={getDefaultHref(item.href)}
+              href={getDefaultHref(item.href)}
               className={`flex flex-col items-center text-xs transition ${
-                pathname === item.href
+                isActive(item.href)
                   ? "text-[var(--primary-a20)]"
                   : "text-[var(--surface-a40)] hover:text-[var(--primary-a20)]"
               }`}
