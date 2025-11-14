@@ -10,7 +10,7 @@ export interface IPassword extends Document {
   strength: "Weak" | "Medium" | "Strong";
   websiteUri?: string;
   isDeleted: boolean;
-  deletedAt: Date;
+  deletedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(password: string): boolean;
