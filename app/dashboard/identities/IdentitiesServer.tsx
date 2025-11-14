@@ -22,7 +22,7 @@ export type Identity = {
   updatedAt?: string;
 };
 
-async function fetchIdentities(jwt: string) {
+export async function fetchIdentities(jwt: string) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/identities`, {
     method: "GET",
     headers: {
@@ -44,7 +44,7 @@ async function fetchIdentities(jwt: string) {
   return { identities, binData };
 }
 
-export default async function IdentityServer() {
+export default async function IdentitiesServer() {
   try {
     const cookieStore = cookies(); // synchronous
     const jwt = (await cookieStore).get("jwt")?.value;
@@ -59,7 +59,9 @@ export default async function IdentityServer() {
 
     const { identities, binData } = await fetchIdentities(jwt);
 
-    return <IdentitiesClient identitiesFromDB={identities} binDataFromDB={binData} />;
+    return (
+      <IdentitiesClient identitiesFromDB={identities} binDataFromDB={binData} />
+    );
   } catch (err) {
     console.error("Error fetching identities:", err);
     return (
