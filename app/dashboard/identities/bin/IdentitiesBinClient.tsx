@@ -50,10 +50,17 @@ export default function IdentitiesBinClient({
   const handleDelete = async (id: string) => {
     try {
       setDeleteId(id);
-      await deleteIdentityForever(id);
-      toast.success("Identity deleted permanently");
-    } catch {
-      toast.error("Failed to delete");
+      const data = await deleteIdentityForever(id);
+      setBins((prev) => ({
+        ...prev,
+        identities: prev.identities.filter((p) => p._id !== data.data._id),
+      }));
+
+      toast.success(data.message);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+      toast.error(message);
     } finally {
       setDeleteId(null);
     }
