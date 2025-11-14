@@ -14,8 +14,9 @@ export interface IIdentity extends Document {
   dateOfBirth?: string;
   notes?: string;
   isDeleted: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
+  deletedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const IdentitySchema: Schema<IIdentity> = new Schema(
@@ -75,6 +76,9 @@ const IdentitySchema: Schema<IIdentity> = new Schema(
     isDeleted: {
       type: Boolean,
       default: false,
+    },
+    deletedAt: {
+      type: Date,
     },
   },
   { timestamps: true }
