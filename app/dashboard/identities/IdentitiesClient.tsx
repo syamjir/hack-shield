@@ -33,15 +33,31 @@ export default function IdentitiesClient({
     setBins((prev) => ({ ...prev, identities: binDataFromDB }));
   }, [identitiesFromDB, binDataFromDB, setIdentities, setBins]);
 
-  const moveToBin = (id: string) => {
+  const moveToBin = async (id: string) => {
     const deleted = identities.find((i) => i._id === id);
     if (!deleted) return;
-    setIdentities((prev) => prev.filter((i) => i._id !== id));
-    setBins((prev) => ({
-      ...prev,
-      identities: [...prev.identities, { ...deleted, isDeleted: true }],
-    }));
-    toast.success(`"${deleted.fullName}" moved to bin`);
+    try {
+      const res = await fetch(`/api/identities/${id}/move-to-bin`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || "Something went wrong");
+
+      const deleted = data.data;
+      if (!deleted) return;
+
+      setIdentities((prev) => prev.filter((i) => i._id !== id));
+      setBins((prev) => ({
+        ...prev,
+        identities: [...prev.identities, deleted],
+      }));
+      toast.success(data.message);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+    }
   };
 
   if (!identities || identities.length === 0) {
@@ -71,7 +87,7 @@ export default function IdentitiesClient({
                 <User size={24} />
               </div>
               <div>
-                <h3 className="font-bold text-dark-a0/90 text-xl">
+                <h3 className="font-semi-bold text-dark-a0/90 text-xl">
                   {identity.fullName}
                 </h3>
                 <p className="text-dark-a0/50 text-sm">{identity.email}</p>
@@ -114,11 +130,11 @@ export default function IdentitiesClient({
             <div className="flex justify-end gap-4 mt-4">
               <Edit
                 className="text-green-500 hover:text-green-600 transition-transform hover:scale-110 cursor-pointer"
-                size={20}
+                size={16}
               />
               <Trash2
                 className="text-red-500 hover:text-red-600 transition-transform hover:scale-110 cursor-pointer"
-                size={20}
+                size={16}
                 onClick={() => moveToBin(identity._id!)}
               />
             </div>
