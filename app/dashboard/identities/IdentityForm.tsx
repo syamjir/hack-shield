@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2, Save, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,15 +17,22 @@ import { Identity, useDashboard } from "@/contexts/DashboardContext";
 interface IdentityFormProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+
+  /** optional → if provided it's EDIT mode */
+  initialData?: Identity | null;
 }
 
 export default function IdentityForm({
   isOpen,
   onOpenChange,
+  initialData,
 }: IdentityFormProps) {
   const { setIdentities } = useDashboard();
+  const isEditing = Boolean(initialData?._id);
+
   const [isSaving, setIsSaving] = useState(false);
-  const [newIdentity, setNewIdentity] = useState<Identity>({
+
+  const [formData, setFormData] = useState<Identity>({
     fullName: "",
     email: "",
     phone: "",
@@ -39,19 +46,33 @@ export default function IdentityForm({
     notes: "",
   });
 
-  const saveIdentity = async (e: React.FormEvent<HTMLFormElement>) => {
+  // Pre-fill when editing
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
+
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!newIdentity.fullName || !newIdentity.email) {
+
+    if (!formData.fullName || !formData.email) {
       toast.error("Please fill all required fields");
       return;
     }
 
     try {
       setIsSaving(true);
-      const res = await fetch("/api/identities", {
-        method: "POST",
+
+      const method = isEditing ? "PUT" : "POST";
+      const url = isEditing
+        ? `/api/identities/${initialData!._id}/edit-identity`
+        : `/api/identities`;
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newIdentity),
+        body: JSON.stringify(formData),
       });
 
       if (!res.ok) {
@@ -60,22 +81,17 @@ export default function IdentityForm({
       }
 
       const data = await res.json();
-      setIdentities((prev: Identity[]) => [...prev, data.data]);
 
-      setNewIdentity({
-        fullName: "",
-        email: "",
-        phone: "",
-        address: "",
-        city: "",
-        state: "",
-        postalCode: "",
-        country: "",
-        company: "",
-        dateOfBirth: "",
-        notes: "",
+      setIdentities((prev: Identity[]) => {
+        if (isEditing) {
+          return prev.map((item) =>
+            item._id === data.data._id ? data.data : item
+          );
+        }
+        return [...prev, data.data];
       });
-      toast.success("Identity saved successfully!");
+
+      toast.success(isEditing ? "Identity updated!" : "Identity created!");
       onOpenChange(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
@@ -84,22 +100,24 @@ export default function IdentityForm({
     }
   };
 
+  const handleChange = (key: keyof Identity, value: string) => {
+    setFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="bg-surface-a10 rounded-xl p-4 sm:p-6 w-[95%] sm:max-w-lg max-h-[80vh] sm:max-h-[96vh] overflow-y-auto">
         <DialogTitle className="text-lg font-semibold text-dark-a0 mb-2">
-          Add New Identity
+          {isEditing ? "Edit Identity" : "Add New Identity"}
         </DialogTitle>
 
-        <form onSubmit={saveIdentity} className="space-y-4 py-2">
+        <form onSubmit={handleSave} className="space-y-4 py-2">
           <Input
             name="fullName"
             placeholder="Full Name"
             required
-            value={newIdentity.fullName}
-            onChange={(e) =>
-              setNewIdentity({ ...newIdentity, fullName: e.target.value })
-            }
+            value={formData.fullName}
+            onChange={(e) => handleChange("fullName", e.target.value)}
             className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
           />
 
@@ -108,50 +126,40 @@ export default function IdentityForm({
             name="email"
             placeholder="Email Address"
             required
-            value={newIdentity.email}
-            onChange={(e) =>
-              setNewIdentity({ ...newIdentity, email: e.target.value })
-            }
+            value={formData.email}
+            onChange={(e) => handleChange("email", e.target.value)}
             className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
           />
 
           <Input
             name="phone"
-            placeholder="Phone Number (optional)"
-            value={newIdentity.phone}
-            onChange={(e) =>
-              setNewIdentity({ ...newIdentity, phone: e.target.value })
-            }
+            placeholder="Phone Number"
+            value={formData.phone}
+            onChange={(e) => handleChange("phone", e.target.value)}
             className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
           />
 
           <Input
             name="address"
-            placeholder="Address (optional)"
-            value={newIdentity.address}
-            onChange={(e) =>
-              setNewIdentity({ ...newIdentity, address: e.target.value })
-            }
+            placeholder="Address"
+            value={formData.address}
+            onChange={(e) => handleChange("address", e.target.value)}
             className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input
               name="city"
-              placeholder="City (optional)"
-              value={newIdentity.city}
-              onChange={(e) =>
-                setNewIdentity({ ...newIdentity, city: e.target.value })
-              }
+              placeholder="City"
+              value={formData.city}
+              onChange={(e) => handleChange("city", e.target.value)}
               className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
             />
             <Input
               name="state"
-              placeholder="State (optional)"
-              value={newIdentity.state}
-              onChange={(e) =>
-                setNewIdentity({ ...newIdentity, state: e.target.value })
-              }
+              placeholder="State"
+              value={formData.state}
+              onChange={(e) => handleChange("state", e.target.value)}
               className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
             />
           </div>
@@ -159,52 +167,41 @@ export default function IdentityForm({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input
               name="postalCode"
-              placeholder="Postal Code (optional)"
-              value={newIdentity.postalCode}
-              onChange={(e) =>
-                setNewIdentity({ ...newIdentity, postalCode: e.target.value })
-              }
+              placeholder="Postal Code"
+              value={formData.postalCode}
+              onChange={(e) => handleChange("postalCode", e.target.value)}
               className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
             />
             <Input
               name="country"
-              placeholder="Country (optional)"
-              value={newIdentity.country}
-              onChange={(e) =>
-                setNewIdentity({ ...newIdentity, country: e.target.value })
-              }
+              placeholder="Country"
+              value={formData.country}
+              onChange={(e) => handleChange("country", e.target.value)}
               className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
             />
           </div>
 
           <Input
             name="company"
-            placeholder="Company (optional)"
-            value={newIdentity.company}
-            onChange={(e) =>
-              setNewIdentity({ ...newIdentity, company: e.target.value })
-            }
+            placeholder="Company"
+            value={formData.company}
+            onChange={(e) => handleChange("company", e.target.value)}
             className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
           />
 
           <Input
             type="date"
             name="dateOfBirth"
-            placeholder="Date of Birth (optional)"
-            value={newIdentity.dateOfBirth}
-            onChange={(e) =>
-              setNewIdentity({ ...newIdentity, dateOfBirth: e.target.value })
-            }
+            value={formData.dateOfBirth}
+            onChange={(e) => handleChange("dateOfBirth", e.target.value)}
             className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
           />
 
           <Textarea
             name="notes"
-            placeholder="Notes (optional)"
-            value={newIdentity.notes}
-            onChange={(e) =>
-              setNewIdentity({ ...newIdentity, notes: e.target.value })
-            }
+            placeholder="Notes"
+            value={formData.notes}
+            onChange={(e) => handleChange("notes", e.target.value)}
             className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
           />
 
@@ -220,16 +217,18 @@ export default function IdentityForm({
 
             <Button
               type="submit"
-              disabled={!newIdentity.fullName || !newIdentity.email}
+              disabled={!formData.fullName || !formData.email}
               className="bg-primary-a20 hover:bg-primary-a30 text-white rounded-lg"
             >
               {isSaving ? (
                 <>
-                  <Loader2 size={18} className="animate-spin mr-1" /> Saving...
+                  <Loader2 className="animate-spin mr-2" size={18} />
+                  Saving...
                 </>
               ) : (
                 <>
-                  <Save size={18} className="mr-1" /> Save
+                  <Save size={18} className="mr-2" />
+                  {isEditing ? "Update" : "Save"}
                 </>
               )}
             </Button>
