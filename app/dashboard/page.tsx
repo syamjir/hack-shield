@@ -6,6 +6,9 @@ import { Lock, User, StickyNote, CreditCard, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TabsSection from "@/components/ui/dashboard/TabsSection";
 import { toast } from "sonner";
+import type { Identity } from "../dashboard/identities/IdentitiesServer";
+import { useDashboard } from "@/contexts/DashboardContext";
+import { useRouter } from "next/navigation";
 
 // ===== TYPES =====
 export type Login = {
@@ -19,7 +22,7 @@ export type Login = {
   password: string;
   websiteUri?: string;
 };
-export type Identity = { id: number; name: string; email: string };
+// export type Identity = { id: number; name: string; email: string };
 export type Note = { id: number; title: string; content: string };
 export type Card = {
   id: number;
@@ -52,10 +55,10 @@ export default function DashboardPage() {
   // ===== MOCK DATA =====
   const [logins, setLogins] = useState<Login[]>([]);
 
-  const [identities, setIdentities] = useState<Identity[]>([
-    { id: 1, name: "Personal", email: "dharmi@gmail.com" },
-    { id: 2, name: "Work", email: "d.r@company.com" },
-  ]);
+  // const [identities, setIdentities] = useState<Identity[]>([
+  //   { id: 1, name: "Personal", email: "dharmi@gmail.com" },
+  //   { id: 2, name: "Work", email: "d.r@company.com" },
+  // ]);
 
   const [notes, setNotes] = useState<Note[]>([
     { id: 1, title: "API Key", content: "XYZ123-SECRET" },
@@ -85,6 +88,9 @@ export default function DashboardPage() {
     return () => clearTimeout(timer);
   }, []);
 
+  const { setIdentities, setBins, identities } = useDashboard();
+  const router = useRouter();
+
   useEffect(() => {
     let isMounted = true;
     const fetchPasswords = async () => {
@@ -112,14 +118,41 @@ export default function DashboardPage() {
         if (isMounted) toast.error(message);
       }
     };
+    const fetchIdentities = async () => {
+      try {
+        const res = await fetch(`/api/identities`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData.error || "Failed to fetch identities");
+        }
+
+        const data = await res.json();
+        const identities = data.data.filter(
+          (item: Identity) => !item.isDeleted
+        );
+        const binIdentities = data.data.filter(
+          (item: Identity) => item.isDeleted
+        );
+        setIdentities(identities);
+        setBins((prev) => ({ ...prev, identities: binIdentities }));
+      } catch (err) {
+        console.error(err);
+        const message =
+          err instanceof Error ? err.message : "Something went wrong";
+        if (isMounted) toast.error(message);
+      }
+    };
     fetchPasswords();
+    fetchIdentities();
 
     return () => {
       isMounted = false;
     };
   }, []);
-
-  console.log(logins);
 
   // ===== ANIMATIONS =====
   const fadeVariants = {
@@ -135,6 +168,7 @@ export default function DashboardPage() {
       title: "Logins",
       description: "Manage your website credentials securely.",
       count: logins.length,
+      url: "/dashboard/logins",
     },
     {
       id: "identities",
@@ -142,6 +176,7 @@ export default function DashboardPage() {
       title: "Identities",
       description: "Store your name, address, and personal data.",
       count: identities.length,
+      url: "/dashboard/identities",
     },
     {
       id: "notes",
@@ -149,6 +184,7 @@ export default function DashboardPage() {
       title: "Secure Notes",
       description: "Keep private notes and confidential text safe.",
       count: notes.length,
+      url: "/dashboard/notes",
     },
     {
       id: "cards",
@@ -156,6 +192,7 @@ export default function DashboardPage() {
       title: "Cards",
       description: "Manage your bank cards and details.",
       count: cards.length,
+      url: "/dashboard/cards",
     },
   ];
 
@@ -207,11 +244,7 @@ export default function DashboardPage() {
                       type: "spring",
                       stiffness: 250,
                     }}
-                    onClick={() =>
-                      setActiveSection(
-                        card.id as "logins" | "identities" | "notes" | "cards"
-                      )
-                    }
+                    onClick={() => router.push(card.url)}
                     className="bg-[var(--surface-a10)] border border-[var(--surface-a20)] hover:border-[var(--primary-a20)] rounded-xl p-6 cursor-pointer transition"
                   >
                     <div className="flex items-center justify-between mb-4">
