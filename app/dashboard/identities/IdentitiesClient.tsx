@@ -13,7 +13,9 @@ import {
 import { toast } from "sonner";
 import { useDashboard } from "@/contexts/DashboardContext";
 import type { Identity } from "./IdentitiesServer";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { moveIdentityToBin } from "./identityServerActions";
+import IdentityForm from "./IdentityForm";
 
 type IdentitiesClientProps = {
   identitiesFromDB: Identity[];
@@ -25,6 +27,8 @@ export default function IdentitiesClient({
   binDataFromDB,
 }: IdentitiesClientProps) {
   const { setIdentities, setBins, identities } = useDashboard();
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [identityToEdit, setIdentityToEdit] = useState<Identity | null>(null);
 
   // Initialize context state with fetched data
   // (This runs only once when the client mounts)
@@ -33,19 +37,16 @@ export default function IdentitiesClient({
     setBins((prev) => ({ ...prev, identities: binDataFromDB }));
   }, [identitiesFromDB, binDataFromDB, setIdentities, setBins]);
 
+  const handleEdit = (identity: Identity) => {
+    setIdentityToEdit(identity);
+    setEditModalOpen(true);
+  };
+
   const moveToBin = async (id: string) => {
     const deleted = identities.find((i) => i._id === id);
     if (!deleted) return;
     try {
-      const res = await fetch(`/api/identities/${id}/move-to-bin`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error || "Something went wrong");
-
+      const data = await moveIdentityToBin(id);
       const deleted = data.data;
       if (!deleted) return;
 
@@ -131,6 +132,7 @@ export default function IdentitiesClient({
               <Edit
                 className="text-green-500 hover:text-green-600 transition-transform hover:scale-110 cursor-pointer"
                 size={16}
+                onClick={() => handleEdit(identity)}
               />
               <Trash2
                 className="text-red-500 hover:text-red-600 transition-transform hover:scale-110 cursor-pointer"
@@ -141,6 +143,11 @@ export default function IdentitiesClient({
           </motion.div>
         ))}
       </div>
+      <IdentityForm
+        isOpen={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        initialData={identityToEdit}
+      />
     </div>
   );
 }
