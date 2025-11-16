@@ -31,7 +31,14 @@ export type Identity = {
   isDeleted?: false | true;
 };
 
-export type SecureNote = { _id: string; title: string; content: string };
+export type Note = {
+  _id?: string;
+  title: string;
+  content: string;
+  tags?: string[];
+  isDeleted?: boolean;
+  createdAt?: Date;
+};
 export type Card = {
   _id: string;
   bank: string;
@@ -43,7 +50,7 @@ export type Card = {
 export type BinType = {
   logins: Login[];
   identities: Identity[];
-  notes: SecureNote[];
+  notes: Note[];
   cards: Card[];
 };
 
@@ -52,14 +59,14 @@ type DashboardContextType = {
   identities: Identity[];
   logins: Login[];
   cards: Card[];
-  secureNotes: SecureNote[];
+  notes: Note[];
   bins: BinType;
 
   // setters
   setIdentities: React.Dispatch<React.SetStateAction<Identity[]>>;
   setLogins: React.Dispatch<React.SetStateAction<Login[]>>;
   setCards: React.Dispatch<React.SetStateAction<Card[]>>;
-  setSecureNotes: React.Dispatch<React.SetStateAction<SecureNote[]>>;
+  setNotes: React.Dispatch<React.SetStateAction<Note[]>>;
   setBins: React.Dispatch<React.SetStateAction<BinType>>;
 };
 
@@ -89,8 +96,13 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       cvv: "878",
     },
   ]);
-  const [secureNotes, setSecureNotes] = useState<SecureNote[]>([
-    { _id: "1", title: "VPN Credentials", content: "user123 / pass123" },
+  const [notes, setNotes] = useState<Note[]>([
+    {
+      _id: "1",
+      title: "VPN Credentials",
+      content: "user123 / pass123",
+      createdAt: new Date(),
+    },
   ]);
 
   const [bins, setBins] = useState<BinType>({
@@ -106,11 +118,11 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         identities,
         logins,
         cards,
-        secureNotes,
+        notes,
         setIdentities,
         setLogins,
         setCards,
-        setSecureNotes,
+        setNotes,
         bins,
         setBins,
       }}
