@@ -29,7 +29,9 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   if (
     url.startsWith("/dashboard") ||
     url.startsWith("/api/passwords") ||
-    url.startsWith("/api/identities")
+    url.startsWith("/api/identities") ||
+    url.startsWith("/api/notes") ||
+    url.startsWith("/api/cards")
   ) {
     // ✅ Get JWT from cookies
     const token = req.cookies.get("jwt")?.value;
