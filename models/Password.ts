@@ -71,7 +71,7 @@ PasswordSchema.pre("save", function (next) {
 
 // 🔐 Compare password for check same login credentials
 PasswordSchema.methods.comparePassword = function (password: string): boolean {
-  return CryptoService.comparePassword(password, this.password, this.iv);
+  return CryptoService.compareData(password, this.password, this.iv);
 };
 
 // Decrypted password
