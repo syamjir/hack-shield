@@ -39,13 +39,18 @@ export type Note = {
   isDeleted?: boolean;
   createdAt?: Date;
 };
+
 export type Card = {
-  _id: string;
+  _id?: string;
+  cardHolder: string;
   bank: string;
   cardNumber: string;
-  expiry: string;
-  cardHolder: string;
+  lastFour: string;
+  brand?: string;
+  expiryMonth: number;
+  expiryYear: number;
   cvv: string;
+  isDeleted: boolean;
 };
 export type BinType = {
   logins: Login[];
@@ -92,8 +97,11 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       bank: "HDFC",
       cardHolder: "John Doe",
       cardNumber: "**** **** **** 4242",
-      expiry: "12/25",
+      expiryMonth: 12,
+      expiryYear: 25,
+      isDeleted: false,
       cvv: "878",
+      lastFour: "4443",
     },
   ]);
   const [notes, setNotes] = useState<Note[]>([
