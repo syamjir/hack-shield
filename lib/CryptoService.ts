@@ -29,12 +29,12 @@ export class CryptoService {
     return decrypted;
   }
 
-  static comparePassword(
-    plainPassword: string,
-    encryptedPassword: string,
+  static compareData(
+    plainData: string,
+    encryptedData: string,
     ivHex: string
   ): boolean {
-    const decrypted = this.decrypt(encryptedPassword, ivHex);
-    return plainPassword === decrypted;
+    const decrypted = this.decrypt(encryptedData, ivHex);
+    return plainData === decrypted;
   }
 }
