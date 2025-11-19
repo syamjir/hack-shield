@@ -104,11 +104,22 @@ export async function GET(req: NextRequest) {
     // ✅ Retrieve all cards for the user
     const cards = await Card.find({ userId }).lean();
 
+    // ✅ avoid leaking sensitive data
+    const safeCards = cards.map((card) => ({
+      ...card,
+      ivCard: "_",
+      ivCvv: "_",
+      cardNumber: "_",
+      cvv: "_",
+    }));
+
+    console.log(safeCards);
+
     // ✅ Return empty array if user has not saved any cards yet
     return NextResponse.json(
       {
         message: "Cards retrieved successfully",
-        data: cards || [],
+        data: safeCards || [],
       },
       { status: 200 }
     );
