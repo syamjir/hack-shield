@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import NotesServer from "./NotesServer";
+import CardsServer from "./CardsServer";
 import { Spinner } from "@/components/ui/spinner";
 import { Metadata } from "next";
 
@@ -12,12 +12,12 @@ export default function IdentitiesPage() {
     <Suspense
       fallback={
         <div className="p-6 text-gray-500 flex gap-2 items-center">
-          <p>Loading notes...</p>
+          <p>Loading cards...</p>
           <Spinner />
         </div>
       }
     >
-      <NotesServer />
+      <CardsServer />
     </Suspense>
   );
 }
