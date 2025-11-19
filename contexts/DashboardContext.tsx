@@ -45,12 +45,12 @@ export type Card = {
   cardHolder: string;
   bank: string;
   cardNumber: string;
-  lastFour: string;
+  lastFour?: string;
   brand?: string;
   expiryMonth: number;
   expiryYear: number;
   cvv: string;
-  isDeleted: boolean;
+  isDeleted?: boolean;
 };
 export type BinType = {
   logins: Login[];
