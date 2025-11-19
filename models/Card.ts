@@ -29,6 +29,11 @@ const CardSchema: Schema<ICard> = new Schema(
       ref: "User",
       required: true,
     },
+    bank: {
+      type: String,
+      required: true,
+      trim: true,
+    },
     cardHolder: {
       type: String,
       required: true,
@@ -44,7 +49,6 @@ const CardSchema: Schema<ICard> = new Schema(
     },
     lastFour: {
       type: String,
-      required: true,
       trim: true,
       minlength: 4,
       maxlength: 4,
