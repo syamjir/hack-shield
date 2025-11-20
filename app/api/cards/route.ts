@@ -61,12 +61,14 @@ export async function POST(req: NextRequest) {
       const createdCard = await newCard.save();
 
       // ✅ avoid leaking sensitive data
-      const {
-        cardNumber: _,
-        ivCard,
-        ivCvv,
-        ...safeCard
-      } = createdCard.toObject();
+
+      const safeCard = {
+        ...createdCard.toObject(),
+        ivCard: "_",
+        ivCvv: "_",
+        cardNumber: "_",
+        cvv: "_",
+      };
 
       return NextResponse.json(
         {
