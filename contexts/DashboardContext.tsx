@@ -47,8 +47,8 @@ export type Card = {
   cardNumber: string;
   lastFour?: string;
   brand?: string;
-  expiryMonth: number;
-  expiryYear: number;
+  expiryMonth: number | undefined;
+  expiryYear: number | undefined;
   cvv: string;
   isDeleted?: boolean;
 };
