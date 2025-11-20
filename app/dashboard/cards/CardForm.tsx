@@ -31,8 +31,8 @@ const defaultCard: Card = {
   cardHolder: "",
   bank: "",
   cardNumber: "",
-  expiryMonth: 1,
-  expiryYear: new Date().getFullYear(),
+  expiryMonth: undefined,
+  expiryYear: undefined,
   cvv: "",
   brand: "",
 };
@@ -48,6 +48,8 @@ export default function CardForm({
   const [isSaving, setIsSaving] = useState(false);
 
   const [formData, setFormData] = useState<Card>(defaultCard);
+
+  console.log(initialData);
 
   // Pre-fill when editing
   useEffect(() => {
@@ -145,13 +147,17 @@ export default function CardForm({
           {/* Card Number */}
           <Input
             name="cardNumber"
-            placeholder="1234 5678 9012 3456"
+            placeholder="**** **** **** ****"
             required
             maxLength={19}
-            value={formData.cardNumber
-              .replace(/\D/g, "")
-              .replace(/(.{4})/g, "$1 ")
-              .trim()}
+            value={
+              formData.cardNumber === "_"
+                ? `**** **** **** ${formData.lastFour}`
+                : formData.cardNumber
+                    .replace(/\D/g, "")
+                    .replace(/(.{4})/g, "$1 ")
+                    .trim()
+            }
             onChange={(e) => {
               // store only digits
               const digits = e.target.value.replace(/\D/g, "").slice(0, 16);
@@ -165,28 +171,30 @@ export default function CardForm({
           <div className="flex gap-2">
             <Input
               name="expiryMonth"
-              type="number"
+              type="text"
               placeholder="MM"
-              min={1}
-              max={12}
-              required
+              maxLength={2}
               value={formData.expiryMonth}
-              onChange={(e) =>
-                handleChange("expiryMonth", Number(e.target.value))
-              }
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, "").slice(0, 2);
+                handleChange("expiryMonth", Number(val));
+              }}
               className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
+              inputMode="numeric"
             />
+
             <Input
               name="expiryYear"
-              type="number"
+              type="text"
               placeholder="YYYY"
-              min={new Date().getFullYear()}
-              required
+              maxLength={4}
               value={formData.expiryYear}
-              onChange={(e) =>
-                handleChange("expiryYear", Number(e.target.value))
-              }
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, "").slice(0, 4);
+                handleChange("expiryYear", Number(val));
+              }}
               className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
+              inputMode="numeric"
             />
           </div>
 
@@ -194,9 +202,10 @@ export default function CardForm({
           <Input
             name="cvv"
             placeholder="CVV"
-            type="password"
+            type="text"
             required
-            value={formData.cvv}
+            maxLength={4}
+            value={formData.cvv === "_" ? "***" : formData.cvv}
             onChange={(e) => handleChange("cvv", e.target.value)}
             className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-1 focus-visible:ring-primary-a0"
           />
