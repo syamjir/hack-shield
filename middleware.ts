@@ -28,7 +28,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
   // Protect only dashboard and API/password routes
   if (
     url.startsWith("/dashboard") ||
-    url.startsWith("/api/passwords") ||
+    url.startsWith("/api/logins") ||
     url.startsWith("/api/identities") ||
     url.startsWith("/api/notes") ||
     url.startsWith("/api/cards")
