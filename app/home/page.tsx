@@ -30,25 +30,16 @@ export default function HomePage() {
 
         {/* Navigation Buttons */}
         <motion.div
-          className="flex items-center space-x-4"
+          className="flex items-center space-x-5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
         >
           {/* Show when signed out */}
 
-          <Link href="auth/login">
-            <Button
-              variant="outline"
-              className="border-primary-a20 text-primary-a30 hover:bg-primary-a10/20 transition-all"
-            >
-              Login to Dashboard
-            </Button>
-          </Link>
-
-          <Link href="auth/signup">
+          <Link href="/dashboard">
             <Button className="bg-primary-a20 hover:bg-primary-a10 text-surface-a0 transition-all">
-              Get Started
+              Dashboard
             </Button>
           </Link>
 
