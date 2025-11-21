@@ -1,4 +1,4 @@
-import { Card, Note } from "@/contexts/DashboardContext";
+import { Card } from "@/contexts/DashboardContext";
 
 type ResponseType = {
   message?: string;
