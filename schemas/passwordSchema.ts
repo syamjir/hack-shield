@@ -6,7 +6,7 @@ export const passwordSchema = z.object({
   username: z.string().trim().min(1, { message: "Username is required" }),
   password: z
     .string()
-    .min(8, { message: "Password must be at least 8 characters long" }),
+    .min(6, { message: "Password must be at least 6 characters long" }),
   websiteUri: z
     .union([z.url({ message: "Invalid website URL" }), z.string().length(0)])
     .optional(),
