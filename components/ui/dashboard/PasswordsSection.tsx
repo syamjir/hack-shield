@@ -52,6 +52,7 @@ export default function PasswordsSection({
       router.push("/welcome");
       return;
     }
+    isValidUri
 
     const strength = validator.calculateStrength(newPassword.password);
 
