@@ -1,20 +1,26 @@
 "use client";
 
-import { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, ReactNode, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 
+type Role = "User" | "Admin" | null;
 type UserContextType = {
   user: ReturnType<typeof useUser>["user"] | null;
   isSignedIn: boolean;
+  role: Role;
+  setRole: (role: Role) => void;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const { user, isSignedIn } = useUser();
+  const [role, setRole] = useState<Role>(null);
 
   return (
-    <UserContext.Provider value={{ user, isSignedIn: !!isSignedIn }}>
+    <UserContext.Provider
+      value={{ user, isSignedIn: !!isSignedIn, role, setRole }}
+    >
       {children}
     </UserContext.Provider>
   );
