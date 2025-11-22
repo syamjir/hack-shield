@@ -10,8 +10,9 @@ export class JwtService {
   }
 
   private signInToken() {
+    console.log("User role is:", this.user?.role);
     return jwt.sign(
-      { id: this.user?._id, email: this.user?.email },
+      { id: this.user?._id, email: this.user?.email, role: this.user?.role },
       process.env.JWT_SECRET as jwt.Secret,
       {
         expiresIn: process.env.JWT_EXPIRES_IN,
@@ -33,7 +34,11 @@ export class JwtService {
     const token = this.signInToken();
 
     const response = NextResponse.json(
-      { message: "2FA verified — login successful", token },
+      {
+        message: "2FA verified — login successful",
+        token,
+        role: this.user?.role,
+      },
       { status: 200 }
     );
     response.cookies.set("jwt", token, {
@@ -47,7 +52,9 @@ export class JwtService {
     return response;
   }
 
-  async decodeJwtToken(token: string): Promise<{ id: string; email?: string }> {
+  async decodeJwtToken(
+    token: string
+  ): Promise<{ id: string; email?: string; role: "User" | "Admin" }> {
     return new Promise((resolve, reject) => {
       jwt.verify(
         token,
@@ -60,8 +67,13 @@ export class JwtService {
           const payload = decoded as jwt.JwtPayload & {
             id: string;
             email: string;
+            role: "User" | "Admin";
           };
-          resolve({ id: payload.id, email: payload?.email });
+          resolve({
+            id: payload.id,
+            email: payload?.email,
+            role: payload?.role,
+          });
         }
       );
     });
