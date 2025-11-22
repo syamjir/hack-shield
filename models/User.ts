@@ -12,6 +12,7 @@ export interface IUser extends Document {
   twoFactorVerified: boolean;
   verificationCode?: string;
   verificationExpires?: Date;
+  role: "User" | "Admin";
   createdAt: Date;
   updatedAt: Date;
 
@@ -53,6 +54,11 @@ const UserSchema: Schema<IUser> = new Schema(
     },
     verificationExpires: {
       type: Date,
+    },
+    role: {
+      type: String,
+      enum: ["User", "Admin"],
+      default: "User",
     },
   },
   { timestamps: true }
