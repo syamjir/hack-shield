@@ -16,7 +16,7 @@ export default async function DashboardPage() {
   };
 
   const [loginsRes, identitiesRes, notesRes, cardsRes] = await Promise.all([
-    fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/passwords`, withAuth),
+    fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/logins`, withAuth),
     fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/identities`, withAuth),
     fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/notes`, withAuth),
     fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/cards`, withAuth),
