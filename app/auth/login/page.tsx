@@ -16,6 +16,7 @@ import AuthCard from "@/components/ui/AuthCard";
 import { Input } from "@/components/ui/input";
 import { LoginValidation } from "@/lib/loginValidation";
 import { toast } from "sonner";
+import { useUserContext } from "@/contexts/UserContext";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -28,6 +29,7 @@ export default function LoginPage() {
     "email" | "phone" | ""
   >("");
   const [isLoadingResendButton, setIsLoadingResendButton] = useState(false);
+  const { setRole } = useUserContext();
 
   const validation = new LoginValidation(email, password);
 
@@ -99,6 +101,8 @@ export default function LoginPage() {
       }
       console.log(data);
       toast.success(data.message);
+      setRole(data.role);
+      localStorage.setItem("role", data.role);
       router.push("/home");
     } catch (err) {
       console.error(err);
