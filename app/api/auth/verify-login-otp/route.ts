@@ -33,10 +33,9 @@ export async function POST(req: NextRequest) {
     // ✅ Set verification code and expires undefined
     user.verificationCode = undefined;
     user.verificationExpires = undefined;
-    await user.save({ validateBeforeSave: false });
-
-    // ✅ Create jwt token and save into the cokkie and send back to the client 
-    const jwtService = new JwtService(user);
+    const savedUser = await user.save({ validateBeforeSave: false });
+    // ✅ Create jwt token and save into the cokkie and send back to the client
+    const jwtService = new JwtService(savedUser);
     return jwtService.createSendToken();
   } catch (error) {
     console.error("Error verifying OTP:", error);
