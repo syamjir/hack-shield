@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, ReactNode, useState } from "react";
+import {
+  createContext,
+  useContext,
+  ReactNode,
+  useState,
+  useEffect,
+} from "react";
 import { useUser } from "@clerk/nextjs";
 
 type Role = "User" | "Admin" | null;
@@ -16,6 +22,12 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const { user, isSignedIn } = useUser();
   const [role, setRole] = useState<Role>(null);
+  useEffect(() => {
+    const roleFromLocal = localStorage.getItem("role");
+    if (roleFromLocal === "User" || roleFromLocal === "Admin") {
+      setRole(roleFromLocal);
+    }
+  }, []);
 
   return (
     <UserContext.Provider
