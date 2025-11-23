@@ -8,12 +8,16 @@ import Link from "next/link";
 import { Footer } from "@/components/ui/Footer";
 import { useRef } from "react";
 import { SignedIn, UserButton } from "@clerk/nextjs";
+import { useUserContext } from "@/contexts/UserContext";
 
 export default function HomePage() {
   const featureRef = useRef<HTMLDivElement>(null);
   function scrollToFeatures() {
     featureRef.current?.scrollIntoView({ behavior: "smooth" });
   }
+
+  const { role } = useUserContext();
+  console.log(role);
   return (
     <main className="min-h-screen bg-surface-a0 text-dark-a0 flex flex-col items-center">
       {/* Navbar */}
@@ -30,12 +34,23 @@ export default function HomePage() {
 
         {/* Navigation Buttons */}
         <motion.div
-          className="flex items-center space-x-5"
+          className="flex items-center space-x-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
         >
           {/* Show when signed out */}
+
+          {role === "Admin" && (
+            <Link href="/admin">
+              <Button
+                variant="outline"
+                className="border-primary-a20 text-primary-a30 hover:bg-primary-a10/20 transition-all"
+              >
+                Admin Panel
+              </Button>
+            </Link>
+          )}
 
           <Link href="/dashboard">
             <Button className="bg-primary-a20 hover:bg-primary-a10 text-surface-a0 transition-all">
