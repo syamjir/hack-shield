@@ -12,6 +12,7 @@ import {
   FileText,
   CreditCard,
   ChevronRight,
+  MessageSquare,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -51,6 +52,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       name: "Cards",
       href: ["/dashboard/cards"],
       icon: <CreditCard className="w-5 h-5" />,
+    },
+    {
+      name: "Chats",
+      href: ["/dashboard/chats"],
+      icon: <MessageSquare className="w-5 h-5" />,
     },
     {
       name: "Settings",
