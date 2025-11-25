@@ -29,6 +29,7 @@ export default async function UserChatPage() {
       );
     }
     const data = await getLoggedUser(jwt);
+    console.log("roomid:", data.data._id);
     return <Chat roomId={data.data._id} sender="user" />;
   } catch (err) {
     console.error("Error loading chat:", err);
