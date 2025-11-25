@@ -33,8 +33,8 @@ export async function getAllUsers(jwt: string): Promise<UsersListResponse> {
   return data;
 }
 export async function getUserById(
-  jwt: string,
-  userId: string
+  userId: string,
+  jwt: string
 ): Promise<SingleUserResponse> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_APP_URL}/api/admin/users/${userId}`,
@@ -58,8 +58,8 @@ export async function getUserById(
 }
 
 export async function deleteUser(
-  jwt: string,
-  userId: string
+  userId: string,
+  jwt: string
 ): Promise<SingleUserResponse> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_APP_URL}/api/admin/users/${userId}`,
