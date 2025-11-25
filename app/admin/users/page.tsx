@@ -53,18 +53,7 @@ export default async function UsersPage() {
     <div className="space-y-10 max-w-6xl mx-auto">
       {/* Header */}
       <Header />
-
-      <Suspense
-        fallback={
-          <div className="p-6 text-gray-500 flex gap-2 items-center">
-            <p>Loading users...</p>
-            <Spinner />
-          </div>
-        }
-      >
-        {/* User Cards */}
-        <UserCard users={users} />
-      </Suspense>
+      <UserCard users={users} />
     </div>
   );
 }
