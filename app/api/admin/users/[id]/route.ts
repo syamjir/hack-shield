@@ -4,11 +4,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectToMongo();
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
@@ -47,11 +47,11 @@ export async function GET(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectToMongo();
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
@@ -78,10 +78,10 @@ export async function DELETE(
       );
     }
 
-   const deletedUser= await User.findByIdAndDelete(id);
+    const deletedUser = await User.findByIdAndDelete(id);
 
     return NextResponse.json(
-      { message: "User deleted successfully" ,data:deletedUser },
+      { message: "User deleted successfully", data: deletedUser },
       { status: 200 }
     );
   } catch (err) {
