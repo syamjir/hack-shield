@@ -36,11 +36,6 @@ export default function AdminSidebar() {
       href: "/admin/chats",
       icon: <MessageSquare className="w-5 h-5" />,
     },
-    {
-      name: "Settings",
-      href: "/admin/settings",
-      icon: <Settings className="w-5 h-5" />,
-    },
   ];
 
   const handleLogout = () => {
