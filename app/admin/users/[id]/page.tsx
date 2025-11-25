@@ -19,7 +19,7 @@ export default async function UserDetail({
   }
 
   const { id } = await params;
-  const { data: user } = await getUserById(jwt, id);
+  const { data: user } = await getUserById(id, jwt);
 
   if (!user)
     return (
@@ -67,15 +67,11 @@ export default async function UserDetail({
       {/* Actions */}
       <div className="flex flex-wrap gap-4">
         {/* Delete User */}
-        <DeleteUserButton
-          userId={user._id}
-          jwt={jwt}
-          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg border border-[var(--surface-a20)] transition"
-        />
+        <DeleteUserButton userId={user._id} jwt={jwt} />
 
         {/* Chat Button */}
         <a
-          href={`/admin/chats?user=${user._id}`}
+          href={`/admin/chats/${user._id}`}
           className="px-4 py-2 bg-[var(--primary-a20)] hover:bg-[var(--primary-a30)] text-white rounded-lg border border-[var(--surface-a20)] transition"
         >
           Chat with User
