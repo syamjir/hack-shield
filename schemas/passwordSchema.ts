@@ -1,6 +1,4 @@
 import z from "zod";
-import PasswordValidator from "@/lib/passwordValidator";
-const validator = new PasswordValidator();
 
 export const passwordSchema = z.object({
   username: z.string().trim().min(1, { message: "Username is required" }),
