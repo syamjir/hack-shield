@@ -41,7 +41,9 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
     url.startsWith("/api/logins") ||
     url.startsWith("/api/identities") ||
     url.startsWith("/api/notes") ||
-    url.startsWith("/api/cards");
+    url.startsWith("/api/cards")||
+    url.startsWith("/api/user")||
+    url.startsWith("/api/messages");
 
   const isAdminRoute =
     url.startsWith("/admin") || // Admin dashboard UI
