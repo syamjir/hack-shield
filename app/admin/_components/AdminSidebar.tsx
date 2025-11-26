@@ -14,26 +14,31 @@ import {
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const navItems = [
-    { name: " Home", href: "/home", icon: <Home className="w-5 h-5" /> },
-    { name: "Overview", href: "/admin", icon: <Lock className="w-5 h-5" /> },
+    { name: " Home", href: ["/home"], icon: <Home className="w-5 h-5" /> },
+    { name: "Overview", href: ["/admin"], icon: <Lock className="w-5 h-5" /> },
     {
       name: "Users",
-      href: "/admin/users",
+      href: ["/admin/users"],
       icon: <Users className="w-5 h-5" />,
     },
 
     {
       name: "Chats",
-      href: "/admin/chats",
+      href: ["/admin/chats", "admin/chats/[userId]"],
       icon: <MessageSquare className="w-5 h-5" />,
     },
   ];
@@ -43,7 +48,19 @@ export default function AdminSidebar() {
     router.push("/auth/login");
   };
 
-  const isActive = (href: string) => pathname === href;
+  const isActive = (href: string | string[]) => {
+    const paths = Array.isArray(href) ? href : [href];
+
+    return paths.some((p) => {
+      if (p.includes("[userId]")) {
+        return pathname.startsWith("/admin/chats/");
+      }
+      return pathname === p;
+    });
+  };
+
+  const getDefaultHref = (href: string | string[]) =>
+    Array.isArray(href) ? href[0] : href;
 
   return (
     <>
@@ -74,10 +91,10 @@ export default function AdminSidebar() {
           <nav className="flex flex-col gap-5 text-sm">
             {navItems.map((item) => (
               <Link
-                key={item.href}
-                href={item.href}
+                key={getDefaultHref(item.href)}
+                href={getDefaultHref(item.href)}
                 className={`flex items-center gap-2 transition ${
-                  isActive(item.href)
+                  hasMounted && isActive(item.href)
                     ? "text-[var(--primary-a20)] font-medium"
                     : "text-[var(--surface-a40)] hover:text-[var(--primary-a20)]"
                 }`}
@@ -134,8 +151,8 @@ export default function AdminSidebar() {
                 <nav className="flex flex-col gap-4 text-sm">
                   {navItems.map((item) => (
                     <Link
-                      key={item.href}
-                      href={item.href}
+                      key={getDefaultHref(item.href)}
+                      href={getDefaultHref(item.href)}
                       onClick={() => setOpen(false)}
                       className={`flex items-center gap-2 transition ${
                         isActive(item.href)
