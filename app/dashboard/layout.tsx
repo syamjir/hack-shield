@@ -79,7 +79,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const Breadcrumbs = () => {
     const pathParts = pathname.split("/").filter(Boolean);
     const nameMap: Record<string, string> = {
-      dashboard: "Overview",
+      dashboard: "Dashboard",
       logins: "Logins",
       identities: "Identities",
       notes: "Secure Notes",
@@ -100,13 +100,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         className="flex items-center gap-1 text-sm text-[var(--surface-a40)] mb-4 overflow-x-auto whitespace-nowrap"
         aria-label="Breadcrumb"
       >
-        <Link
-          href="/dashboard"
-          className="hover:text-[var(--primary-a20)] transition"
-        >
-          Dashboard
-        </Link>
-
+        <Link href="/dashboard">Overview</Link>
         {breadcrumbs.map((crumb, index) => (
           <div key={crumb.href} className="flex items-center gap-1">
             <ChevronRight size={14} className="text-[var(--surface-a30)]" />
