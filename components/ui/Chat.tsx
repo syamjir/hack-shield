@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useChatSocket } from "@/hooks/useChatSocket";
 import { getMessagesByRoomId } from "@/server_actions/messageServerActions";
 
-export default function Chat({ roomId, sender }: any) {
+export default function Chat({ roomId, sender, reciever }: any) {
   const {
     messages,
     setMessages,
@@ -15,8 +15,6 @@ export default function Chat({ roomId, sender }: any) {
     typing,
     typingUser,
   } = useChatSocket(roomId);
-
-  console.log(messages);
 
   const [text, setText] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -99,7 +97,7 @@ export default function Chat({ roomId, sender }: any) {
     >
       {/* HEADER */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-lg">Chat</h3>
+        <h3 className="font-semibold text-lg">Chat - {reciever}</h3>
         <span
           className={`text-xs ${online ? "text-[#5BE17C]" : "text-red-400"}`}
         >
@@ -112,6 +110,9 @@ export default function Chat({ roomId, sender }: any) {
         ref={scrollRef}
         onScroll={handleScroll}
         className="
+        bg-surface-a0/30
+        p-4
+        rounded-2xl
           flex-1 
           overflow-y-auto 
           space-y-4 
@@ -132,7 +133,7 @@ export default function Chat({ roomId, sender }: any) {
             <div
               className={`max-w-[80%] p-3 rounded-xl text-sm ${
                 msg.sender === sender
-                  ? "ml-auto bg-[#4A8FE7] text-white"
+                  ? "ml-auto bg-info-a10 text-white"
                   : "bg-[#2A2D31] border border-[#3A3D41]"
               }`}
             >
@@ -163,7 +164,7 @@ export default function Chat({ roomId, sender }: any) {
       {!autoScroll && (
         <button
           onClick={scrollToBottom}
-          className="fixed bottom-24 right-6 px-3 py-1 text-xs rounded-md bg-[#4A8FE7] text-white shadow-md"
+          className="fixed bottom-35 right-10  px-3 py-1 text-xs rounded-md bg-info-a10 text-white shadow-md"
         >
           ↓ New Messages
         </button>
@@ -196,7 +197,7 @@ export default function Chat({ roomId, sender }: any) {
             setText("");
             scrollToBottom();
           }}
-          className="px-4 py-2 bg-[#4A8FE7] text-white rounded-lg"
+          className="px-4 py-2 bg-info-a10 text-white rounded-lg"
         >
           Send
         </button>
