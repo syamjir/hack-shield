@@ -1,4 +1,4 @@
-import { getUserById } from "../../adminServerActions";
+import { getUser } from "../../adminServerActions";
 import DeleteUserButton from "../../_components/DeleteUserButton";
 import { cookies } from "next/headers";
 
@@ -19,7 +19,7 @@ export default async function UserDetail({
   }
 
   const { id } = await params;
-  const { data: user } = await getUserById(id, jwt);
+  const { data: user } = await getUser(id, jwt);
 
   if (!user)
     return (
