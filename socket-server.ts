@@ -36,7 +36,17 @@ async function start() {
     socket.on("join_room", async (roomId) => {
       socket.join(roomId);
       onlineUsers[socket.id] = roomId;
-
+      const uniqueOnlineUsers = Object.values(onlineUsers).reduce(
+        (acc, curr) => {
+          if (!acc.includes(curr)) acc.push(curr);
+          return acc;
+        },
+        [] as string[]
+      );
+      const onlineUsersIds = Object.values(onlineUsers);
+      // const isOnline =
+      //   onlineUsersIds.length === 2 && onlineUsersIds[0] === onlineUsersIds[1];
+      io.emit("online-users", uniqueOnlineUsers);
       io.to(roomId).emit("online_status", {
         userId: roomId,
         online: true,
@@ -92,7 +102,7 @@ async function start() {
     socket.on("disconnect", () => {
       const roomId = onlineUsers[socket.id];
       delete onlineUsers[socket.id];
-
+      io.emit("online-users", Object.values(onlineUsers));
       if (roomId) {
         io.to(roomId).emit("online_status", {
           userId: roomId,
