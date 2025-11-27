@@ -14,6 +14,7 @@ export default function Chat({ roomId, sender, reciever }: any) {
     online,
     typing,
     typingUser,
+    onlineUsers,
   } = useChatSocket(roomId);
 
   const [text, setText] = useState("");
@@ -40,6 +41,8 @@ export default function Chat({ roomId, sender, reciever }: any) {
 
     if (autoScroll) scrollToBottom();
   }, [messages]);
+
+  console.log("online users", onlineUsers);
 
   const scrollToBottom = () => {
     setTimeout(() => {
