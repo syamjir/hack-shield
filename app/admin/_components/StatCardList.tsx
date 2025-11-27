@@ -3,10 +3,12 @@ import React from "react";
 import { StatCard } from "./StatCard";
 import { useAdminStats } from "@/contexts/AdminStatsContext";
 import { Spinner } from "@/components/ui/spinner";
+import { useChatSocket } from "@/hooks/useChatSocket";
 
 export function StatCardList() {
   const { totalUsers, newRegistrations, error, loading } = useAdminStats();
-  console.log(newRegistrations);
+  const { onlineUsers } = useChatSocket("demo_room_Id");
+  console.log(onlineUsers);
   if (error) {
     return <div className="p-6 text-red-500">error</div>;
   }
@@ -28,7 +30,11 @@ export function StatCardList() {
       />
 
       {/* ACTIVE CHATS */}
-      <StatCard label="Active Chats" value={"0"} footer="Live conversations" />
+      <StatCard
+        label="Active Chats"
+        value={String(onlineUsers.length - 1)}
+        footer="Live conversations"
+      />
 
       {/* NEW USERS */}
       <StatCard
