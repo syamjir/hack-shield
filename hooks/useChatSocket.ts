@@ -11,11 +11,12 @@ export function useChatSocket(roomId: string) {
   const [online, setOnline] = useState(false);
   const [typing, setTyping] = useState(false);
   const [typingUser, setTypingUser] = useState<"user" | "admin" | null>(null);
+  const [onlineUsers, setOnlineUsers] = useState([]);
   const pathname = usePathname();
 
   useEffect(() => {
     socketRef.current = io("http://localhost:4000", {
-      transports: ["websocket"], // FORCE websocket
+      transports: ["websocket", "polling"],
     });
 
     // io() ->Create Socket.IO client instance
@@ -33,6 +34,11 @@ export function useChatSocket(roomId: string) {
     );
 
     socketRef.current.emit("join_room", roomId);
+    socketRef.current.emit("online-users");
+
+    socketRef.current.on("online-users", (data) => {
+      setOnlineUsers(data);
+    });
 
     socketRef.current.on("receive_message", (msg: IMessage) =>
       setMessages((prev) => [...prev, msg])
@@ -63,7 +69,7 @@ export function useChatSocket(roomId: string) {
 
   useEffect(() => {
     return () => {
-      console.log("Route changed, disconnecting socket");
+      console.log("Component unmounted, disconnecting socket");
       socketRef.current?.disconnect();
     };
   }, [pathname]);
@@ -93,5 +99,6 @@ export function useChatSocket(roomId: string) {
     online,
     typing,
     typingUser,
+    onlineUsers,
   };
 }
