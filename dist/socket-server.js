@@ -73,12 +73,21 @@ function start() {
                         console.log("🔥 Socket connected:", socket.id);
                         // JOIN ROOM
                         socket.on("join_room", function (roomId) { return __awaiter(_this, void 0, void 0, function () {
-                            var messages;
+                            var uniqueOnlineUsers, onlineUsersIds, messages;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
                                         socket.join(roomId);
                                         onlineUsers[socket.id] = roomId;
+                                        uniqueOnlineUsers = Object.values(onlineUsers).reduce(function (acc, curr) {
+                                            if (!acc.includes(curr))
+                                                acc.push(curr);
+                                            return acc;
+                                        }, []);
+                                        onlineUsersIds = Object.values(onlineUsers);
+                                        // const isOnline =
+                                        //   onlineUsersIds.length === 2 && onlineUsersIds[0] === onlineUsersIds[1];
+                                        io.emit("online-users", uniqueOnlineUsers);
                                         io.to(roomId).emit("online_status", {
                                             userId: roomId,
                                             online: true,
@@ -110,7 +119,7 @@ function start() {
                                             })];
                                     case 1:
                                         saved = _a.sent();
-                                        io.to(msg.room).emit("receive_message", saved.toObject());
+                                        io.to(msg.room).emit("receive_message", saved);
                                         return [3 /*break*/, 3];
                                     case 2:
                                         err_2 = _a.sent();
@@ -127,21 +136,23 @@ function start() {
                         socket.on("stop_typing", function (roomId, sender) {
                             io.to(roomId).emit("typing", { isTyping: false, sender: sender });
                         });
-                        // MARK READ
+                        // MARK READ (called by client when user sees messages)
                         socket.on("mark_read", function (roomId) { return __awaiter(_this, void 0, void 0, function () {
                             var err_3;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
                                     case 0:
                                         _a.trys.push([0, 2, , 3]);
+                                        // Update unread messages
                                         return [4 /*yield*/, Message_js_1.default.updateMany({ room: roomId, read: false }, { read: true })];
                                     case 1:
+                                        // Update unread messages
                                         _a.sent();
                                         io.to(roomId).emit("messages_read");
                                         return [3 /*break*/, 3];
                                     case 2:
                                         err_3 = _a.sent();
-                                        console.error("❌ Mark read error:", err_3);
+                                        console.error("❌ mark_read error:", err_3);
                                         return [3 /*break*/, 3];
                                     case 3: return [2 /*return*/];
                                 }
@@ -151,6 +162,7 @@ function start() {
                         socket.on("disconnect", function () {
                             var roomId = onlineUsers[socket.id];
                             delete onlineUsers[socket.id];
+                            io.emit("online-users", Object.values(onlineUsers));
                             if (roomId) {
                                 io.to(roomId).emit("online_status", {
                                     userId: roomId,
