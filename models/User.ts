@@ -13,6 +13,7 @@ export interface IUser extends Document {
   verificationCode?: string;
   verificationExpires?: Date;
   role: "User" | "Admin";
+  preference: { theme: string; auto_lock: boolean };
   createdAt: Date;
   updatedAt: Date;
 
@@ -59,6 +60,10 @@ const UserSchema: Schema<IUser> = new Schema(
       type: String,
       enum: ["User", "Admin"],
       default: "User",
+    },
+    preference: {
+      theme: { type: String, enum: ["dark", "light"], default: "dark" },
+      auto_lock: { type: Boolean, default: false },
     },
   },
   { timestamps: true }
