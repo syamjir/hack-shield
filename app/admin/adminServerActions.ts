@@ -57,3 +57,28 @@ export async function getUser(
   const data = await res.json();
   return data;
 }
+
+export async function deleteUser(
+  userId: string,
+  jwt: string
+): Promise<SingleUserResponse> {
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_APP_URL}/api/admin/users/${userId}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: `jwt=${jwt}`,
+      },
+      cache: "no-store",
+    }
+  );
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || "Failed to fetch user");
+  }
+
+  const data = await res.json();
+  return data;
+}
