@@ -30,18 +30,36 @@ export class JwtService {
     );
   }
 
-  createSendToken(): NextResponse {
+  createSendToken(message = "2FA verified — login successful"): NextResponse {
     const token = this.signInToken();
 
     const response = NextResponse.json(
       {
-        message: "2FA verified — login successful",
+        message: message,
         token,
         role: this.user?.role,
+        preference: this.user?.preference,
       },
       { status: 200 }
     );
     response.cookies.set("jwt", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      // sameSite: "strict",
+      path: "/",
+      maxAge: Number(process.env.JWT_COOKIE_EXPIRES_IN) * 24 * 60 * 60,
+    });
+
+    return response;
+  }
+  createSendLogOutToken(): NextResponse {
+    const response = NextResponse.json(
+      {
+        message: " logout successful",
+      },
+      { status: 200 }
+    );
+    response.cookies.set("jwt", "logout", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       // sameSite: "strict",
