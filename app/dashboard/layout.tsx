@@ -13,6 +13,7 @@ import {
   CreditCard,
   ChevronRight,
   MessageSquare,
+  Loader2,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -20,12 +21,22 @@ import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ReactNode, useState } from "react";
 import { DashboardProvider } from "@/contexts/DashboardContext";
+import { useUserContext } from "@/contexts/UserContext";
+import { useAutoLock } from "@/hooks/useAutoLock";
+import { logout } from "./serverActions";
+import { toast } from "sonner";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isLogouting, setIsLogouting] = useState(false);
+  const { role, setRole } = useUserContext();
+  const { autoLock } = useUserContext();
 
+  useAutoLock(autoLock, 1, () => {
+    handleLogout();
+  });
   const navItems = [
     { name: "Home", href: "/home", icon: <Home className="w-5 h-5" /> },
     {
@@ -70,9 +81,27 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     },
   ];
 
-  const handleLogout = () => {
-    setMenuOpen(false);
-    router.push("/");
+  const filteredNavItems =
+    role === "Admin"
+      ? navItems.filter((item) => item.name !== "Chats")
+      : navItems;
+
+  const handleLogout = async () => {
+    try {
+      setIsLogouting(true);
+      const data = await logout();
+      toast.success(data.message);
+      setMenuOpen(false);
+      setRole(null);
+      localStorage.removeItem("role");
+      router.push("/home");
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+      toast.error(message);
+    } finally {
+      setIsLogouting(false);
+    }
   };
 
   // Breadcrumbs
@@ -141,7 +170,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               </h1>
             </div>
             <nav className="flex flex-col gap-5 text-sm">
-              {navItems.map((item) => (
+              {filteredNavItems.map((item) => (
                 <Link
                   key={getDefaultHref(item.href)}
                   href={getDefaultHref(item.href)}
@@ -162,7 +191,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             className="flex items-center gap-3 text-[var(--surface-a40)] hover:text-[var(--primary-a20)] cursor-pointer"
           >
             <LogOut className="w-4 h-4" />
-            <span>Logout</span>
+            <span className="inline-flex items-center gap-2">
+              {isLogouting ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" /> Logging out...
+                </>
+              ) : (
+                <>Logout</>
+              )}
+            </span>
           </button>
         </aside>
 
@@ -219,7 +256,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                     </button>
                   </div>
                   <nav className="flex flex-col gap-4 text-sm">
-                    {navItems.map((item) => (
+                    {filteredNavItems.map((item) => (
                       <Link
                         key={getDefaultHref(item.href)}
                         href={getDefaultHref(item.href)}
@@ -266,7 +303,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
         {/* ====== MOBILE BOTTOM NAVIGATION ====== */}
         <nav className="fixed bottom-0 left-0 right-0 md:hidden bg-[var(--surface-a10)] border-t border-[var(--surface-a20)] flex justify-around py-3 z-30">
-          {navItems.map((item) => (
+          {filteredNavItems.map((item) => (
             <Link
               key={getDefaultHref(item.href)}
               href={getDefaultHref(item.href)}
