@@ -103,6 +103,8 @@ export default function LoginPage() {
       toast.success(data.message);
       setRole(data.role);
       localStorage.setItem("role", data.role);
+      localStorage.setItem("theme", data.preference.theme);
+      localStorage.setItem("autoLock", data.preference.auto_lock);
       router.push("/home");
     } catch (err) {
       console.error(err);
