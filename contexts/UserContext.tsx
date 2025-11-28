@@ -8,6 +8,7 @@ import {
   useEffect,
 } from "react";
 import { useUser } from "@clerk/nextjs";
+import { useTheme } from "next-themes";
 
 type Role = "User" | "Admin" | null;
 type UserContextType = {
@@ -15,6 +16,10 @@ type UserContextType = {
   isSignedIn: boolean;
   role: Role;
   setRole: (role: Role) => void;
+  autoLock: boolean;
+  setAutoLock: (autoLock: boolean) => void;
+  theme: string;
+  setTheme: (theme: string) => void;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -22,16 +27,31 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const { user, isSignedIn } = useUser();
   const [role, setRole] = useState<Role>(null);
+  const [autoLock, setAutoLock] = useState(true);
+  const { theme, setTheme } = useTheme();
   useEffect(() => {
     const roleFromLocal = localStorage.getItem("role");
+    const autoLockFromLocal = !!localStorage.getItem("autoLock");
+    const themeFromLocal = localStorage.getItem("theme");
     if (roleFromLocal === "User" || roleFromLocal === "Admin") {
       setRole(roleFromLocal);
     }
+    if (autoLockFromLocal) setAutoLock(autoLockFromLocal);
+    if (themeFromLocal) setTheme(themeFromLocal);
   }, []);
 
   return (
     <UserContext.Provider
-      value={{ user, isSignedIn: !!isSignedIn, role, setRole }}
+      value={{
+        user,
+        isSignedIn: !!isSignedIn,
+        role,
+        setRole,
+        autoLock,
+        setAutoLock,
+        theme: theme || "dark",
+        setTheme,
+      }}
     >
       {children}
     </UserContext.Provider>
