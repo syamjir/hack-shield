@@ -41,41 +41,37 @@ export default async function UserDetail({
       </div>
 
       {/* User Info Card */}
-      <div className="p-6 rounded-xl bg-[var(--surface-a10)] border border-[var(--surface-a20)] shadow-sm space-y-3">
-        <div className="space-y-2">
-          <p className="text-sm text-[var(--surface-a40)]">User ID</p>
-          <h3 className="text-lg font-semibold text-[var(--surface-a50)]">
-            {user._id}
-          </h3>
+      <div className="p-6 rounded-xl bg-[var(--surface-a10)] border border-[var(--surface-a20)] shadow-md space-y-4">
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 bg-dark-a0/10 rounded-full flex items-center justify-center text-xl font-bold text-dark-a0">
+            {user.email[0].toUpperCase()}
+          </div>
+          <div>
+            <h3 className="text-xl font-semibold text-dark-a0">{user.email}</h3>
+            <p className="text-sm text-dark-a0/50">User ID: {user._id}</p>
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <p className="text-sm text-[var(--surface-a40)]">Email</p>
-          <h3 className="text-lg font-semibold text-[var(--surface-a50)]">
-            {user.email}
-          </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <p className="text-sm text-dark-a0/60">Created At</p>
+            <h3 className="text-md text-dark-a0">
+              {new Date(user.createdAt).toLocaleString()}
+            </h3>
+          </div>
+          <div>
+            <p className="text-sm text-dark-a0/60">Actions</p>
+            <div className="flex gap-2 mt-1">
+              <DeleteUserButton userId={user._id} jwt={jwt} />
+              <a
+                href={`/admin/chats/${user._id}`}
+                className="px-3 py-1.5 bg-[var(--primary-a20)] hover:bg-[var(--primary-a30)] text-white rounded-lg border border-[var(--surface-a20)] transition"
+              >
+                Chat
+              </a>
+            </div>
+          </div>
         </div>
-
-        <div className="space-y-2">
-          <p className="text-sm text-[var(--surface-a40)]">Created At</p>
-          <h3 className="text-lg text-[var(--surface-a50)]">
-            {new Date(user.createdAt).toLocaleString()}
-          </h3>
-        </div>
-      </div>
-
-      {/* Actions */}
-      <div className="flex flex-wrap gap-4">
-        {/* Delete User */}
-        <DeleteUserButton userId={user._id} jwt={jwt} />
-
-        {/* Chat Button */}
-        <a
-          href={`/admin/chats/${user._id}`}
-          className="px-4 py-2 bg-[var(--primary-a20)] hover:bg-[var(--primary-a30)] text-white rounded-lg border border-[var(--surface-a20)] transition"
-        >
-          Chat with User
-        </a>
       </div>
     </div>
   );
