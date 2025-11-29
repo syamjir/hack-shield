@@ -27,11 +27,13 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const { user, isSignedIn } = useUser();
   const [role, setRole] = useState<Role>(null);
-  const [autoLock, setAutoLock] = useState(true);
+  const [autoLock, setAutoLock] = useState(false);
   const { theme, setTheme } = useTheme();
   useEffect(() => {
     const roleFromLocal = localStorage.getItem("role");
-    const autoLockFromLocal = !!localStorage.getItem("autoLock");
+    const autoLockFromLocal = JSON.parse(
+      localStorage.getItem("autoLock") || "false"
+    );
     const themeFromLocal = localStorage.getItem("theme");
     if (roleFromLocal === "User" || roleFromLocal === "Admin") {
       setRole(roleFromLocal);
