@@ -4,8 +4,7 @@ import { motion, Variants } from "framer-motion";
 import { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, Cloud, User, Moon, Lock } from "lucide-react";
-
+import { ShieldCheck, User, Moon, Bell } from "lucide-react"; // Replaced Cloud and Lock with Bell
 import { IUser } from "@/models/User";
 import { useUserContext } from "@/contexts/UserContext";
 import { useTheme } from "next-themes";
@@ -20,7 +19,7 @@ export default function SettingsClient({ user }: { user: IUser }) {
   const [openPasswordResetModal, setOpenPasswordResetModal] = useState(false);
 
   const { role, autoLock, setAutoLock } = useUserContext();
-
+  console.log(autoLock);
   const isDark = theme === "dark";
 
   // === UPDATE FUNCTION ===
@@ -99,7 +98,7 @@ export default function SettingsClient({ user }: { user: IUser }) {
               </span>
             </p>
 
-            <div className="flex gap-3 mt-3">
+            <div className="flex lg:flex-row flex-col gap-3 mt-3">
               <Button
                 size="sm"
                 variant="outline"
@@ -143,66 +142,60 @@ export default function SettingsClient({ user }: { user: IUser }) {
           </div>
         </motion.div>
 
-        {/* SECURITY */}
+        {/* NEW SECTION: Notifications */}
         <motion.div
           className="bg-[var(--surface-a10)] border border-[var(--surface-a20)] rounded-xl p-6 shadow-sm"
           whileHover={{ scale: 1.02 }}
         >
           <div className="flex items-center gap-3 mb-4">
-            <Lock className="text-[var(--primary-a20)] w-5 h-5" />
+            <Bell className="text-[var(--primary-a20)] w-5 h-5" />
             <h2 className="text-lg font-semibold text-[var(--primary-a20)]">
-              Security
+              Notifications
             </h2>
           </div>
 
-          <div className="flex justify-between items-center py-2 border-b border-[var(--surface-a20)]">
-            <span>Enable Biometric Unlock</span>
-            <Switch checked={biometric} onCheckedChange={setBiometric} />
-          </div>
+          <div className="space-y-3 text-sm text-[var(--surface-a40)]">
+            <p>Manage your notification preferences below.</p>
 
-          <div className="flex justify-between items-center py-2">
-            <span>Two-Factor Authentication (2FA)</span>
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-[var(--primary-a20)] text-[var(--primary-a20)] hover:bg-[var(--primary-a20)] hover:text-white"
-            >
-              Configure
-            </Button>
+            <div className="flex justify-between items-center py-2">
+              <span>Enable Push Notifications</span>
+              <Switch checked={biometric} onCheckedChange={setBiometric} />
+            </div>
+
+            <div className="flex justify-between items-center py-2">
+              <span>Email Notifications</span>
+              <Switch checked={cloudSync} onCheckedChange={setCloudSync} />
+            </div>
           </div>
         </motion.div>
 
-        {/* BACKUP */}
+        {/* ===== NEW SECTION FOR MOBILE & MEDIUM SCREENS ONLY ===== */}
         <motion.div
-          className="bg-[var(--surface-a10)] border border-[var(--surface-a20)] rounded-xl p-6 shadow-sm"
+          className="md:hidden bg-[var(--surface-a10)] border border-[var(--surface-a20)] rounded-xl p-6 shadow-sm"
           whileHover={{ scale: 1.02 }}
         >
           <div className="flex items-center gap-3 mb-4">
-            <Cloud className="text-[var(--primary-a20)] w-5 h-5" />
+            <Bell className="text-[var(--primary-a20)] w-5 h-5" />
             <h2 className="text-lg font-semibold text-[var(--primary-a20)]">
-              Backup & Sync
+              Mobile Settings
             </h2>
           </div>
 
-          <div className="flex justify-between items-center py-2 border-b border-[var(--surface-a20)]">
-            <span>Enable Cloud Sync</span>
-            <Switch checked={cloudSync} onCheckedChange={setCloudSync} />
-          </div>
+          <div className="space-y-3 text-sm text-[var(--surface-a40)]">
+            <p>Configure your settings for mobile use.</p>
+            <div className="flex justify-between items-center py-2">
+              <span>Enable Push Notifications</span>
+              <Switch checked={biometric} onCheckedChange={setBiometric} />
+            </div>
 
-          <div className="flex justify-between items-center py-2">
-            <span>Last Backup:</span>
-            <span className="text-[var(--surface-a40)]">Oct 25, 2025</span>
+            <div className="flex justify-between items-center py-2">
+              <span>App Version</span>
+              <span className="text-[var(--surface-a40)]">1.0.0</span>
+            </div>
           </div>
-
-          <Button
-            size="sm"
-            variant="outline"
-            className="mt-4 border-[var(--primary-a20)] text-[var(--primary-a20)] hover:bg-[var(--primary-a20)] hover:text-white"
-          >
-            Backup Now
-          </Button>
         </motion.div>
       </div>
+
       <PasswordResetModel
         openPasswordResetModal={openPasswordResetModal}
         setOpenPasswordResetModal={setOpenPasswordResetModal}
