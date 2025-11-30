@@ -52,10 +52,10 @@ export class JwtService {
 
     return response;
   }
-  createSendLogOutToken(): NextResponse {
+  createSendLogOutToken(message = "logout successful"): NextResponse {
     const response = NextResponse.json(
       {
-        message: " logout successful",
+        message: message,
       },
       { status: 200 }
     );
