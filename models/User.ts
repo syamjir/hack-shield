@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+import mongoose, { Schema, Document, Model, Query } from "mongoose";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 
@@ -14,6 +14,7 @@ export interface IUser extends Document {
   verificationExpires?: Date;
   role: "User" | "Admin";
   preference: { theme: string; auto_lock: boolean };
+  isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
 
@@ -65,9 +66,18 @@ const UserSchema: Schema<IUser> = new Schema(
       theme: { type: String, enum: ["dark", "light"], default: "dark" },
       auto_lock: { type: Boolean, default: false },
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
+
+UserSchema.pre(/^find/, function (this: Query<any, any>, next) {
+  this.where({ isDeleted: false });
+  next();
+});
 
 // 🔒 Hash password before saving
 UserSchema.pre("save", async function (next) {
