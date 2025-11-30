@@ -31,3 +31,17 @@ export async function updatePreference(body: {
   if (!res.ok) throw new Error(data.error || "Something went wrong");
   return data;
 }
+export async function softDeleteUser() {
+  const res = await fetch(`/api/user/delete`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) throw new Error(data.error || "Something went wrong");
+  return data;
+}
