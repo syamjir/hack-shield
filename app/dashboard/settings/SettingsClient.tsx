@@ -8,7 +8,7 @@ import { ShieldCheck, User, Moon, Bell } from "lucide-react"; // Replaced Cloud 
 import { IUser } from "@/models/User";
 import { useUserContext } from "@/contexts/UserContext";
 import { useTheme } from "next-themes";
-import { updatePreference } from "./settingServerActions";
+import { softDeleteUser, updatePreference } from "./settingServerActions";
 import { toast } from "sonner";
 import PasswordResetModel from "@/components/ui/PasswordResetModel";
 
@@ -46,6 +46,17 @@ export default function SettingsClient({ user }: { user: IUser }) {
   const handleAutoLock = (value: boolean) => {
     setAutoLock(value);
     handleUpdate(theme as string, value);
+  };
+  // soft delete
+  const deleteUser = async () => {
+    try {
+      const data = await softDeleteUser();
+      toast.success(data.message);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Something went wrong";
+      toast.error(message);
+    }
   };
 
   const fadeVariants: Variants = {
@@ -112,6 +123,7 @@ export default function SettingsClient({ user }: { user: IUser }) {
                 size="sm"
                 variant="destructive"
                 className="bg-red-500 text-white hover:bg-red-600"
+                onClick={deleteUser}
               >
                 Delete Account
               </Button>
