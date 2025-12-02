@@ -1,0 +1,79 @@
+doctype html
+html
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title #{subject}
+    style.
+      body {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        background-color: #f4f5f3;
+        padding: 20px;
+        margin: 0;
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .header img {
+        width: 80px;
+        margin-bottom: 10px;
+      }
+      h2 {
+        font-size: 22px;
+        color: #15424E;
+        margin-bottom: 10px;
+      }
+      p {
+        font-size: 16px;
+        line-height: 1.5;
+        color: #555;
+      }
+      .alert {
+        background-color: #e8f5e9;
+        border-left: 6px solid #4caf50;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 20px 0;
+      }
+      .footer {
+        font-size: 12px;
+        text-align: center;
+        color: #999;
+        margin-top: 30px;
+      }
+      a {
+        color: #15424E;
+        text-decoration: none;
+        font-weight: bold;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+
+  body
+    .container
+      .header
+        img(src="https://static.thenounproject.com/png/lock-icon-7889248-512.png", alt="Notification Logo")
+        h2 #{subject}
+
+      p Hello #{firstName},
+
+      p #{message}
+
+      .alert
+        p **Important:** If you believe you received this message in error, please contact our support team immediately.
+
+      p For security, do not share sensitive information and use strong, unique passwords when applicable.
+
+      .footer
+        p &copy; #{new Date().getFullYear()} PassKeeper. All rights reserved.
