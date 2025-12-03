@@ -1,4 +1,5 @@
 import { connectToMongo } from "@/lib/connectToMongo";
+import EmailService from "@/lib/emailService";
 import { JwtService } from "@/lib/jwtService";
 import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
@@ -40,6 +41,12 @@ export async function POST(req: NextRequest) {
     user.password = newPassword;
     //  Save the newly password to the database
     const savedUser = await user.save();
+
+    // send email notification
+    if (savedUser.preference.emailNotification) {
+      const emailService = new EmailService(savedUser);
+      emailService.sendPasswordChangeEmail();
+    }
     // ✅ Create jwt token and save into the cokkie and send back to the client
     const jwtService = new JwtService(savedUser);
     return jwtService.createSendToken("Password reset successful");
