@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, Variants } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, User, Moon, Bell } from "lucide-react"; // Replaced Cloud and Lock with Bell
@@ -14,20 +14,36 @@ import PasswordResetModel from "@/components/ui/PasswordResetModel";
 
 export default function SettingsClient({ user }: { user: IUser }) {
   const { theme, setTheme } = useTheme();
-  const [biometric, setBiometric] = useState(false);
-  const [cloudSync, setCloudSync] = useState(true);
   const [openPasswordResetModal, setOpenPasswordResetModal] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  const { role, autoLock, setAutoLock } = useUserContext();
-  console.log(autoLock);
+  const {
+    role,
+    autoLock,
+    setAutoLock,
+    emailNotification,
+    setEmailNotification,
+  } = useUserContext();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null; // skip rendering until mounted
+
   const isDark = theme === "dark";
 
   // === UPDATE FUNCTION ===
-  const handleUpdate = async (newTheme: string, lockValue: boolean) => {
+  const handleUpdate = async (
+    newTheme?: string,
+    lockValue?: boolean,
+    emailNotification?: boolean
+  ) => {
     try {
       const data = await updatePreference({
         mode: newTheme,
         auto_lock: lockValue,
+        emailNotification,
       });
       toast.success(data.message);
     } catch (err) {
@@ -39,13 +55,18 @@ export default function SettingsClient({ user }: { user: IUser }) {
   const handleDarkMode = (value: boolean) => {
     const newTheme = value ? "dark" : "light";
     setTheme(newTheme);
-    handleUpdate(newTheme, autoLock);
+    handleUpdate(newTheme, autoLock, emailNotification);
   };
 
   // === WHEN USER CHANGES AUTO-LOCK ===
   const handleAutoLock = (value: boolean) => {
     setAutoLock(value);
-    handleUpdate(theme as string, value);
+    handleUpdate(theme, value, emailNotification);
+  };
+  // === WHEN USER CHANGES EMAIL NOTIFICATION ===
+  const handleEmailNotification = (value: boolean) => {
+    setEmailNotification(value);
+    handleUpdate(theme, autoLock, value);
   };
   // soft delete
   const deleteUser = async () => {
@@ -170,13 +191,11 @@ export default function SettingsClient({ user }: { user: IUser }) {
             <p>Manage your notification preferences below.</p>
 
             <div className="flex justify-between items-center py-2">
-              <span>Enable Push Notifications</span>
-              <Switch checked={biometric} onCheckedChange={setBiometric} />
-            </div>
-
-            <div className="flex justify-between items-center py-2">
               <span>Email Notifications</span>
-              <Switch checked={cloudSync} onCheckedChange={setCloudSync} />
+              <Switch
+                checked={emailNotification}
+                onCheckedChange={handleEmailNotification}
+              />
             </div>
           </div>
         </motion.div>
@@ -195,10 +214,6 @@ export default function SettingsClient({ user }: { user: IUser }) {
 
           <div className="space-y-3 text-sm text-[var(--surface-a40)]">
             <p>Configure your settings for mobile use.</p>
-            <div className="flex justify-between items-center py-2">
-              <span>Enable Push Notifications</span>
-              <Switch checked={biometric} onCheckedChange={setBiometric} />
-            </div>
 
             <div className="flex justify-between items-center py-2">
               <span>App Version</span>
