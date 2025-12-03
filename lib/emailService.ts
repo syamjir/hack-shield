@@ -5,15 +5,17 @@ import pug from "pug";
 import path from "path";
 
 class EmailService {
-  private email: string;
-  private firstName: string;
-  private otp: string | null;
+  private email?: string;
+  private firstName?: string;
+  private otp?: string | null;
   private url?: string;
   private from: string;
+  private emails?: string[];
 
-  constructor(user: IUser, otp?: string, url?: string) {
-    this.email = user.email;
-    this.firstName = user.name?.split(" ")[0] || "User";
+  constructor(user?: IUser, otp?: string, url?: string, emails?: string[]) {
+    this.email = user?.email;
+    this.emails = emails;
+    this.firstName = user?.name?.split(" ")[0] || "User";
     this.otp = otp || null;
     this.url = url;
     this.from = `PassKeeper <${process.env.GMAIL_USER}>`;
@@ -32,7 +34,8 @@ class EmailService {
   private async sendMailToUser(
     template: string,
     subject: string,
-    purpose: string
+    purpose?: string,
+    message?: string
   ) {
     const templatePath = path.join(
       process.cwd(),
@@ -46,11 +49,12 @@ class EmailService {
       url: this.url,
       subject,
       purpose,
+      message,
     });
 
     const mailOptions = {
       from: this.from,
-      to: this.email,
+      to: this.email || this.emails,
       subject,
       html,
       text: htmlToText(html),
@@ -72,6 +76,15 @@ class EmailService {
       "Your PassKeeper verification code (valid for 15 minutes)",
       "login"
     );
+  }
+  async sendPasswordChangeEmail() {
+    await this.sendMailToUser(
+      "passwordChange",
+      "Your PassKeeper password was recently changed"
+    );
+  }
+  async sendNotificationToAllUsers(subject: string, message: string) {
+    await this.sendMailToUser("notification", subject, message);
   }
   //TODO add reset and verify functions
 }
