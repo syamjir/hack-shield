@@ -16,6 +16,7 @@ export async function whoAmI(jwt: string) {
 export async function updatePreference(body: {
   mode?: string;
   auto_lock?: boolean;
+  emailNotification?: boolean;
 }) {
   const res = await fetch(`/api/user/preference`, {
     method: "PUT",
