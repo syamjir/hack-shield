@@ -1,4 +1,7 @@
+"use client";
+import { toast } from "sonner";
 import { sendEmailToAllUsers } from "../_actions/actions";
+import { useFormStatus } from "react-dom";
 
 export default function NotificationForm({ user }) {
   return (
@@ -16,17 +19,17 @@ export default function NotificationForm({ user }) {
       {/* FORM */}
       <form
         action={async (formData: FormData) => {
-          "use server";
           const subject = formData.get("subject")?.toString();
           const message = formData.get("message")?.toString();
           const userId = user?._id;
-
           try {
             await sendEmailToAllUsers(subject!, message!, userId);
-            alert("Emails sent successfully!");
+            toast.success("Emails sent successfully!");
           } catch (err) {
             console.error(err);
-            alert("Error sending emails");
+            const message =
+              err instanceof Error ? err.message : "Error sending emails";
+            toast.error(message);
           }
         }}
         className="flex flex-col gap-4 bg-[var(--surface-a10)] p-6 rounded-xl border border-[var(--surface-a20)] shadow-sm"
@@ -47,14 +50,21 @@ export default function NotificationForm({ user }) {
           className="p-3 rounded-lg bg-[var(--surface-a20)] text-white placeholder:text-[var(--surface-a40)] border border-[var(--surface-a30)] focus:border-[var(--primary-a20)] focus:outline-none"
         />
 
-        <button
-          type="submit"
-          //   disabled={loading}
-          className="mt-2 p-3 bg-primary-a20 text-white font-semibold rounded-lg hover:bg-primary-a30 transition-colors disabled:opacity-50"
-        >
-          {/* {loading ? "Sending..." : "Send Notification"} */} Send Email
-        </button>
+        <Button />
       </form>
     </div>
+  );
+}
+
+function Button() {
+  const { pending: loading } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={loading}
+      className="mt-2 p-3 bg-primary-a20 text-white font-semibold rounded-lg hover:bg-primary-a30 transition-colors disabled:opacity-50"
+    >
+      {loading ? "Sending..." : "Send Notification"}
+    </button>
   );
 }
