@@ -25,12 +25,24 @@ export async function PUT(req: NextRequest) {
         { status: 400 }
       );
     }
+    if (
+      body.emailNotification !== undefined &&
+      typeof body.emailNotification !== "boolean"
+    ) {
+      return NextResponse.json(
+        { error: "Invalid emailNotification value" },
+        { status: 400 }
+      );
+    }
 
     // Update only provided fields
     user.preference = {
       ...user.preference,
       ...(body.mode && { mode: body.mode }),
       ...(body.auto_lock !== undefined && { auto_lock: body.auto_lock }),
+      ...(body.emailNotification !== undefined && {
+        emailNotification: body.emailNotification,
+      }),
     };
 
     const editedUser = await user.save();
