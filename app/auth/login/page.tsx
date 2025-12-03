@@ -105,6 +105,7 @@ export default function LoginPage() {
       localStorage.setItem("role", data.role);
       localStorage.setItem("theme", data.preference.theme);
       localStorage.setItem("autoLock", data.preference.auto_lock);
+      localStorage.setItem("emailNotification", data.preference.emailNotification);
       router.push("/home");
     } catch (err) {
       console.error(err);
