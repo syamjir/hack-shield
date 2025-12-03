@@ -10,6 +10,7 @@ import {
   MessageSquare,
   Home,
   Settings,
+  Bell,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -40,6 +41,11 @@ export default function AdminSidebar() {
       name: "Chats",
       href: ["/admin/chats", "admin/chats/[userId]"],
       icon: <MessageSquare className="w-5 h-5" />,
+    },
+    {
+      name: "Notification",
+      href: ["/admin/notification"],
+      icon: <Bell className="w-5 h-5" />,
     },
   ];
 
