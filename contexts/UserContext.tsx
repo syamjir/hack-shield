@@ -20,6 +20,8 @@ type UserContextType = {
   setAutoLock: (autoLock: boolean) => void;
   theme: string;
   setTheme: (theme: string) => void;
+  emailNotification: boolean;
+  setEmailNotification: (emailNotification: boolean) => void;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -28,11 +30,15 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const { user, isSignedIn } = useUser();
   const [role, setRole] = useState<Role>(null);
   const [autoLock, setAutoLock] = useState(false);
+  const [emailNotification, setEmailNotification] = useState(true);
   const { theme, setTheme } = useTheme();
   useEffect(() => {
     const roleFromLocal = localStorage.getItem("role");
     const autoLockFromLocal = JSON.parse(
       localStorage.getItem("autoLock") || "false"
+    );
+    const emailNotificationFromLocal = JSON.parse(
+      localStorage.getItem("emailNotification") || "false"
     );
     const themeFromLocal = localStorage.getItem("theme");
     if (roleFromLocal === "User" || roleFromLocal === "Admin") {
@@ -40,6 +46,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
     if (autoLockFromLocal) setAutoLock(autoLockFromLocal);
     if (themeFromLocal) setTheme(themeFromLocal);
+    if (emailNotificationFromLocal)
+      setEmailNotification(emailNotificationFromLocal);
   }, []);
 
   return (
@@ -53,6 +61,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         setAutoLock,
         theme: theme || "dark",
         setTheme,
+        emailNotification,
+        setEmailNotification,
       }}
     >
       {children}
