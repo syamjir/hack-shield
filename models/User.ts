@@ -13,7 +13,7 @@ export interface IUser extends Document {
   verificationCode?: string;
   verificationExpires?: Date;
   role: "User" | "Admin";
-  preference: { theme: string; auto_lock: boolean };
+  preference: { theme: string; auto_lock: boolean; emailNotification: boolean };
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -65,6 +65,10 @@ const UserSchema: Schema<IUser> = new Schema(
     preference: {
       theme: { type: String, enum: ["dark", "light"], default: "dark" },
       auto_lock: { type: Boolean, default: false },
+      emailNotification: {
+        type: Boolean,
+        default: true,
+      },
     },
     isDeleted: {
       type: Boolean,
@@ -74,11 +78,6 @@ const UserSchema: Schema<IUser> = new Schema(
   { timestamps: true }
 );
 
-UserSchema.pre(/^find/, function (this: Query<any, any>, next) {
-  this.where({ isDeleted: false });
-  next();
-});
-
 // 🔒 Hash password before saving
 UserSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
@@ -86,6 +85,11 @@ UserSchema.pre("save", async function (next) {
     this.password,
     Number(process.env.BCRYPT_SALT_ROUNDS)
   );
+  next();
+});
+
+UserSchema.pre(/^find/, function (this: Query<any, any>, next) {
+  this.where({ isDeleted: false });
   next();
 });
 
