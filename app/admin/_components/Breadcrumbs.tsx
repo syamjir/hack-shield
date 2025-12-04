@@ -33,7 +33,7 @@ export default function Breadcrumbs() {
       <Link href="/admin">Dashboard</Link>
 
       {breadcrumbs.map((crumb, i) => (
-        <div key={crumb.href} className="flex items-center gap-1">
+        <div key={i} className="flex items-center gap-1">
           <ChevronRight size={14} />
           {i === breadcrumbs.length - 1 ? (
             <span className="text-[var(--primary-a20)] font-medium">
