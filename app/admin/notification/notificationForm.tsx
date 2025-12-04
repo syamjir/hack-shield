@@ -4,6 +4,21 @@ import { sendEmailToAllUsers } from "../_actions/actions";
 import { useFormStatus } from "react-dom";
 
 export default function NotificationForm({ user }) {
+  async function sendEmail(formData: FormData) {
+    const subject = formData.get("subject")?.toString();
+    const message = formData.get("message")?.toString();
+    const userId = user?._id;
+    try {
+      await sendEmailToAllUsers(subject!, message!, userId);
+      toast.success("Emails sent successfully!");
+    } catch (err) {
+      console.error(err);
+      const message =
+        err instanceof Error ? err.message : "Error sending emails";
+      toast.error(message);
+    }
+  }
+
   return (
     <div className="">
       {/* HEADER */}
@@ -18,20 +33,7 @@ export default function NotificationForm({ user }) {
 
       {/* FORM */}
       <form
-        action={async (formData: FormData) => {
-          const subject = formData.get("subject")?.toString();
-          const message = formData.get("message")?.toString();
-          const userId = user?._id;
-          try {
-            await sendEmailToAllUsers(subject!, message!, userId);
-            toast.success("Emails sent successfully!");
-          } catch (err) {
-            console.error(err);
-            const message =
-              err instanceof Error ? err.message : "Error sending emails";
-            toast.error(message);
-          }
-        }}
+        action={sendEmail}
         className="flex flex-col gap-4 bg-[var(--surface-a10)] p-6 rounded-xl border border-[var(--surface-a20)] shadow-sm"
       >
         <input
