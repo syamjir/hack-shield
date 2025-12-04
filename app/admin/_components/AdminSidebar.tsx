@@ -6,10 +6,8 @@ import {
   X,
   LogOut,
   Users,
-  CalendarRange,
   MessageSquare,
   Home,
-  Settings,
   Bell,
 } from "lucide-react";
 
@@ -95,9 +93,10 @@ export default function AdminSidebar() {
           </div>
 
           <nav className="flex flex-col gap-5 text-sm">
-            {navItems.map((item) => (
+            {navItems.map((item, index) => (
               <Link
-                key={getDefaultHref(item.href)}
+                key={index}
+                // key={getDefaultHref(item.href)}
                 href={getDefaultHref(item.href)}
                 className={`flex items-center gap-2 transition ${
                   hasMounted && isActive(item.href)
@@ -155,9 +154,10 @@ export default function AdminSidebar() {
                 </div>
 
                 <nav className="flex flex-col gap-4 text-sm">
-                  {navItems.map((item) => (
+                  {navItems.map((item, index) => (
                     <Link
-                      key={getDefaultHref(item.href)}
+                      key={index}
+                      // key={getDefaultHref(item.href)}
                       href={getDefaultHref(item.href)}
                       onClick={() => setOpen(false)}
                       className={`flex items-center gap-2 transition ${
