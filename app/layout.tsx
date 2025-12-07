@@ -7,6 +7,7 @@ import AiChatBot from "@/components/ui/AiChatBot";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "sonner";
 import { UserProvider } from "@/contexts/UserContext";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,10 +45,16 @@ export default function RootLayout({
   return (
     <ClerkProvider
       afterSignOutUrl="/welcome"
-      signInFallbackRedirectUrl="/home"
-      signUpFallbackRedirectUrl="/home"
+      signInFallbackRedirectUrl="/demo-home"
+      signUpFallbackRedirectUrl="/demo-home"
     >
       <html lang="en" suppressHydrationWarning>
+        <head>
+          <Script
+            src="https://checkout.razorpay.com/v1/checkout.js"
+            strategy="afterInteractive"
+          />
+        </head>
         <UserProvider>
           <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased p-1 md:p-0  `}
