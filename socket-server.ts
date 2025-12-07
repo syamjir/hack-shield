@@ -27,29 +27,26 @@ async function start() {
     cors: { origin: "*" },
   });
 
-  let onlineUsers: Record<string, string> = {};
+  let onlineUsers: Record<string, number> = {};
 
   io.on("connection", (socket) => {
     console.log("🔥 Socket connected:", socket.id);
-
+    let joinedRoom: string | null = null;
     // JOIN ROOM
     socket.on("join_room", async (roomId) => {
+      joinedRoom = roomId;
       socket.join(roomId);
-      onlineUsers[socket.id] = roomId;
-      const uniqueOnlineUsers = Object.values(onlineUsers).reduce(
-        (acc, curr) => {
-          if (!acc.includes(curr)) acc.push(curr);
-          return acc;
-        },
-        [] as string[]
-      );
-      const onlineUsersIds = Object.values(onlineUsers);
-      // const isOnline =
-      //   onlineUsersIds.length === 2 && onlineUsersIds[0] === onlineUsersIds[1];
-      io.emit("online-users", uniqueOnlineUsers);
+      // Increment count
+      onlineUsers[roomId] = (onlineUsers[roomId] ?? 0) + 1;
+
+      // Check if pair is online
+      const isOnline = onlineUsers[roomId] >= 2;
+
+      io.emit("online-users", Object.keys(onlineUsers));
       io.to(roomId).emit("online_status", {
         userId: roomId,
         online: true,
+        pairOnline: isOnline,
       });
 
       const messages = await Message.find({ room: roomId })
@@ -100,17 +97,26 @@ async function start() {
 
     // DISCONNECT
     socket.on("disconnect", () => {
-      const roomId = onlineUsers[socket.id];
-      delete onlineUsers[socket.id];
-      io.emit("online-users", Object.values(onlineUsers));
-      if (roomId) {
-        io.to(roomId).emit("online_status", {
-          userId: roomId,
-          online: false,
-        });
+      if (!joinedRoom) return;
+
+      const roomId = joinedRoom;
+
+      onlineUsers[roomId] = Math.max((onlineUsers[roomId] ?? 1) - 1, 0);
+
+      const isOnline = onlineUsers[roomId] > 0;
+      const pairOnline = onlineUsers[roomId] >= 2;
+
+      io.to(roomId).emit("online_status", {
+        userId: roomId,
+        online: isOnline,
+        pairOnline,
+      });
+
+      if (onlineUsers[roomId] === 0) {
+        delete onlineUsers[roomId];
       }
 
-      console.log("❌ Socket disconnected:", socket.id);
+      io.emit("online-users", Object.keys(onlineUsers));
     });
   });
 
