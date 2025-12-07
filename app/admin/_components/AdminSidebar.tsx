@@ -96,7 +96,6 @@ export default function AdminSidebar() {
             {navItems.map((item, index) => (
               <Link
                 key={index}
-                // key={getDefaultHref(item.href)}
                 href={getDefaultHref(item.href)}
                 className={`flex items-center gap-2 transition ${
                   hasMounted && isActive(item.href)
@@ -157,7 +156,6 @@ export default function AdminSidebar() {
                   {navItems.map((item, index) => (
                     <Link
                       key={index}
-                      // key={getDefaultHref(item.href)}
                       href={getDefaultHref(item.href)}
                       onClick={() => setOpen(false)}
                       className={`flex items-center gap-2 transition ${
