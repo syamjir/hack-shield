@@ -71,26 +71,24 @@ function start() {
                     onlineUsers = {};
                     io.on("connection", function (socket) {
                         console.log("🔥 Socket connected:", socket.id);
+                        var joinedRoom = null;
                         // JOIN ROOM
                         socket.on("join_room", function (roomId) { return __awaiter(_this, void 0, void 0, function () {
-                            var uniqueOnlineUsers, onlineUsersIds, messages;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
+                            var isOnline, messages;
+                            var _a;
+                            return __generator(this, function (_b) {
+                                switch (_b.label) {
                                     case 0:
+                                        joinedRoom = roomId;
                                         socket.join(roomId);
-                                        onlineUsers[socket.id] = roomId;
-                                        uniqueOnlineUsers = Object.values(onlineUsers).reduce(function (acc, curr) {
-                                            if (!acc.includes(curr))
-                                                acc.push(curr);
-                                            return acc;
-                                        }, []);
-                                        onlineUsersIds = Object.values(onlineUsers);
-                                        // const isOnline =
-                                        //   onlineUsersIds.length === 2 && onlineUsersIds[0] === onlineUsersIds[1];
-                                        io.emit("online-users", uniqueOnlineUsers);
+                                        // Increment count
+                                        onlineUsers[roomId] = ((_a = onlineUsers[roomId]) !== null && _a !== void 0 ? _a : 0) + 1;
+                                        isOnline = onlineUsers[roomId] >= 2;
+                                        io.emit("online-users", Object.keys(onlineUsers));
                                         io.to(roomId).emit("online_status", {
                                             userId: roomId,
                                             online: true,
+                                            pairOnline: isOnline,
                                         });
                                         return [4 /*yield*/, Message_js_1.default.find({ room: roomId })
                                                 .sort({
@@ -98,7 +96,7 @@ function start() {
                                             })
                                                 .lean()];
                                     case 1:
-                                        messages = _a.sent();
+                                        messages = _b.sent();
                                         socket.emit("message_history", messages);
                                         console.log("\uD83D\uDCCC Joined room: ".concat(roomId));
                                         return [2 /*return*/];
@@ -160,16 +158,22 @@ function start() {
                         }); });
                         // DISCONNECT
                         socket.on("disconnect", function () {
-                            var roomId = onlineUsers[socket.id];
-                            delete onlineUsers[socket.id];
-                            io.emit("online-users", Object.values(onlineUsers));
-                            if (roomId) {
-                                io.to(roomId).emit("online_status", {
-                                    userId: roomId,
-                                    online: false,
-                                });
+                            var _a;
+                            if (!joinedRoom)
+                                return;
+                            var roomId = joinedRoom;
+                            onlineUsers[roomId] = Math.max(((_a = onlineUsers[roomId]) !== null && _a !== void 0 ? _a : 1) - 1, 0);
+                            var isOnline = onlineUsers[roomId] > 0;
+                            var pairOnline = onlineUsers[roomId] >= 2;
+                            io.to(roomId).emit("online_status", {
+                                userId: roomId,
+                                online: isOnline,
+                                pairOnline: pairOnline,
+                            });
+                            if (onlineUsers[roomId] === 0) {
+                                delete onlineUsers[roomId];
                             }
-                            console.log("❌ Socket disconnected:", socket.id);
+                            io.emit("online-users", Object.keys(onlineUsers));
                         });
                     });
                     console.log("🚀 Socket Server running on port 4000");
