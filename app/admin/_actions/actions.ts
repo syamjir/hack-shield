@@ -26,7 +26,6 @@ export async function sendEmailToAllUsers(
   const emails = users.map((user) => user.email);
 
   // Send email
-
   const emailService = new EmailService(
     undefined,
     undefined,
