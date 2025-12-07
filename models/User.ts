@@ -14,6 +14,11 @@ export interface IUser extends Document {
   verificationExpires?: Date;
   role: "User" | "Admin";
   preference: { theme: string; auto_lock: boolean; emailNotification: boolean };
+  payment: {
+    isPremiumUser: boolean;
+    orderId?: string;
+    paymentStatus: "PENDING" | "SUCCESS" | "FAILED";
+  };
   isDeleted: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -68,6 +73,15 @@ const UserSchema: Schema<IUser> = new Schema(
       emailNotification: {
         type: Boolean,
         default: true,
+      },
+    },
+    payment: {
+      isPremiumUser: { type: Boolean, default: false },
+      orderId: { type: String }, // Razorpay order ID
+      paymentStatus: {
+        type: String,
+        enum: ["PENDING", "SUCCESS", "FAILED"],
+        default: "PENDING",
       },
     },
     isDeleted: {
