@@ -15,7 +15,11 @@ export default function Chat({ roomId, sender, reciever }: any) {
     typing,
     typingUser,
     onlineUsers,
+    isPairOnline,
   } = useChatSocket(roomId);
+
+  console.log("22222222222", isPairOnline);
+  console.log("11111111111", online);
 
   const [text, setText] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -102,9 +106,11 @@ export default function Chat({ roomId, sender, reciever }: any) {
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-lg">Chat - {reciever}</h3>
         <span
-          className={`text-xs ${online ? "text-[#5BE17C]" : "text-red-400"}`}
+          className={`text-xs ${
+            online && isPairOnline ? "text-[#5BE17C]" : "text-red-400"
+          }`}
         >
-          {online ? "● Online" : "● Offline"}
+          {online && isPairOnline ? "● Online" : "● Offline"}
         </span>
       </div>
 
