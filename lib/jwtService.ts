@@ -39,6 +39,7 @@ export class JwtService {
         token,
         role: this.user?.role,
         preference: this.user?.preference,
+        user: this.user,
       },
       { status: 200 }
     );
