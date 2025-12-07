@@ -9,6 +9,7 @@ export function useChatSocket(roomId: string) {
   const socketRef = useRef<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [online, setOnline] = useState(false);
+  const [isPairOnline, setIsPairOnline] = useState(false);
   const [typing, setTyping] = useState(false);
   const [typingUser, setTypingUser] = useState<"user" | "admin" | null>(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
@@ -49,7 +50,10 @@ export function useChatSocket(roomId: string) {
 
     socketRef.current.on(
       "online_status",
-      (data: { userId: string; online: boolean }) => setOnline(data.online)
+      (data: { userId: string; online: boolean; pairOnline: boolean }) => {
+        setOnline(data.online);
+        setIsPairOnline(data.pairOnline);
+      }
     );
 
     socketRef.current.on(
@@ -100,5 +104,6 @@ export function useChatSocket(roomId: string) {
     typing,
     typingUser,
     onlineUsers,
+    isPairOnline,
   };
 }
