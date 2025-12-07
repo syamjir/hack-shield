@@ -15,20 +15,19 @@ function PremiumButton() {
   const handlePay = () => {
     startTransition(async () => {
       const response = await createOrder(199);
+      const { order, userEmail, userPhone, alreadyPremium } = response;
 
-      if (!response) {
+      if (!response || alreadyPremium) {
         throw new Error("Failed to create order");
       }
 
-      const { order, userEmail, userPhone } = response;
-
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: order.amount,
+        amount: order?.amount,
         currency: "INR",
         name: "PassKeeper",
         description: "Test Transaction",
-        order_id: order.id,
+        order_id: order?.id,
         handler: async function (response: RazorpayResponseType) {
           await verifyPayment(response);
           alert("Payment Success!");
