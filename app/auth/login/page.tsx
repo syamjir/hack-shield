@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Loader2,
@@ -29,7 +29,13 @@ export default function LoginPage() {
     "email" | "phone" | ""
   >("");
   const [isLoadingResendButton, setIsLoadingResendButton] = useState(false);
-  const { setRole } = useUserContext();
+  const { setRole, user } = useUserContext();
+  const emailFromClerk = user?.emailAddresses[0].emailAddress;
+  useEffect(() => {
+    if (emailFromClerk) {
+      setEmail(emailFromClerk);
+    }
+  }, [emailFromClerk]);
 
   const validation = new LoginValidation(email, password);
 
@@ -49,17 +55,16 @@ export default function LoginPage() {
 
   // Step 1: Validate login and send OTP
   const handleLogin = async () => {
-    if (!email || !password) {
-      toast.error("Please enter email & password");
-      return;
-    }
-
     try {
+      if (!email || !password) {
+        toast.error("Please enter email & password");
+        return;
+      }
       setIsLoading(true);
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: emailFromClerk, password }),
       });
 
       const data = await res.json();
@@ -82,17 +87,17 @@ export default function LoginPage() {
 
   // Step 2: Verify OTP
   const handleVerify = async () => {
-    const enteredOtp = otp.join("");
-    if (!enteredOtp) {
-      toast.error("Please enter OTP code");
-      return;
-    }
     try {
+      const enteredOtp = otp.join("");
+      if (!enteredOtp) {
+        toast.error("Please enter OTP code");
+        return;
+      }
       setIsLoading(true);
       const res = await fetch("/api/auth/verify-login-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp: enteredOtp }),
+        body: JSON.stringify({ email: emailFromClerk, otp: enteredOtp }),
       });
 
       const data = await res.json();
@@ -127,7 +132,7 @@ export default function LoginPage() {
       const res = await fetch("/api/auth/resend-login-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: emailFromClerk }),
       });
       if (!res.ok) {
         const errorData = await res.json();
@@ -195,6 +200,7 @@ export default function LoginPage() {
               type="email"
               placeholder="Email"
               value={email}
+              disabled
               onChange={(e) => setEmail(e.target.value)}
               className="bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-0.5 focus-visible:ring-primary-a0"
             />
