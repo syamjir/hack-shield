@@ -132,7 +132,7 @@ export default function SignupPage() {
             value={form.email}
             onChange={handleChange}
             placeholder="Email"
-            disabled={!!emailFromClerk}
+            disabled
             className=" bg-surface-a20 text-dark-a0 rounded-md px-3 py-2 outline-none focus-visible:ring-0.5 focus-visible:ring-primary-a0"
           />
           {/* Error Message */}
