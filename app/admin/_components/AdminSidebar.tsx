@@ -95,7 +95,7 @@ export default function AdminSidebar() {
           <nav className="flex flex-col gap-5 text-sm">
             {navItems.map((item, index) => (
               <Link
-                key={index}
+                key={item.href[0]}
                 href={getDefaultHref(item.href)}
                 className={`flex items-center gap-2 transition ${
                   hasMounted && isActive(item.href)
