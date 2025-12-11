@@ -10,6 +10,7 @@ export interface IPassword extends Document {
   strength: "Weak" | "Medium" | "Strong";
   websiteUri?: string;
   isDeleted: boolean;
+  isBreached: boolean;
   deletedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -49,6 +50,10 @@ const PasswordSchema: Schema<IPassword> = new Schema(
       type: String,
     },
     isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    isBreached: {
       type: Boolean,
       default: false,
     },
