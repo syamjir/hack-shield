@@ -1,4 +1,5 @@
 import { connectToMongo } from "@/lib/connectToMongo";
+import { checkBreach } from "@/lib/passwordUtils";
 import Password from "@/models/Password";
 import User from "@/models/User";
 import { passwordInput, passwordSchema } from "@/schemas/passwordSchema";
@@ -47,11 +48,15 @@ export async function PUT(
       );
     }
 
+    // Check password breached before save
+    const isBreachedPassword = await checkBreach(password);
+
     // Save password with edited field
     existingPassword.site = site;
     existingPassword.username = username;
     existingPassword.websiteUri = websiteUri;
     existingPassword.password = password;
+    existingPassword.isBreached = isBreachedPassword ? true : false;
     existingPassword.strength = strength;
 
     await existingPassword.save();
