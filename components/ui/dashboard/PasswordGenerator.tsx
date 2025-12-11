@@ -54,14 +54,14 @@ export default function PasswordGenerator({ onBreachPassword }) {
               <Button
                 size="sm"
                 onClick={handleCopy}
-                className="bg-transparent text-[var(--primary-a20)] hover:text-[var(--primary-a30)]"
+                className="bg-transparent hover:bg-transparent cursor-pointer text-primary-a20 hover:text-primary-a0"
               >
                 <Copy size={16} />
               </Button>
               <Button
                 size="sm"
                 onClick={handleCopyToBreachChecker}
-                className="bg-transparent text-[var(--primary-a20)] hover:text-[var(--primary-a30)]"
+                className="bg-transparent hover:bg-transparent cursor-pointer text-primary-a20 hover:text-primary-a0"
               >
                 <ShieldCheck size={16} />
               </Button>
