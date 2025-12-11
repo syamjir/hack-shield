@@ -1,4 +1,5 @@
 import { connectToMongo } from "@/lib/connectToMongo";
+import { checkBreach } from "@/lib/passwordUtils";
 import Password from "@/models/Password";
 import User from "@/models/User";
 import { passwordInput, passwordSchema } from "@/schemas/passwordSchema";
@@ -39,7 +40,8 @@ export async function POST(req: NextRequest) {
         { status: 409 }
       );
     }
-
+    // Check password breached before save
+    const isBreachedPassword = await checkBreach(password);
     // ✅ Create and save new password entry
     try {
       const newPassword = new Password({
@@ -47,6 +49,7 @@ export async function POST(req: NextRequest) {
         site: site.trim(),
         username: username.trim(),
         password,
+        isBreached: isBreachedPassword ? true : false,
         websiteUri: websiteUri?.trim(),
         strength,
       });
