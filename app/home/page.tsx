@@ -16,7 +16,6 @@ export default async function HomePage() {
     }
 
     const { data: user } = await whoAmI(jwt);
-    console.log(user);
     return <HomeClient currentUser={user} />;
   } catch (err) {
     console.error("Error fetching user:", err);
