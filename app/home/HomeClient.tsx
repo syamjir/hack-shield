@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Shield, KeyRound, Lock, Smartphone, Eye, Server } from "lucide-react";
+import { Shield, KeyRound, Lock, Eye, Server, Bell } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Footer } from "@/components/ui/Footer";
@@ -61,7 +61,7 @@ export default function HomeClient({ currentUser }) {
             <PremiumButton />
           )}
 
-          <Link href="/dashboard">
+          <Link href={!currentUser ? "/signup" : "/dashboard"}>
             <Button className="bg-primary-a20 hover:bg-primary-a10 text-surface-a0 transition-all">
               Dashboard
             </Button>
@@ -93,7 +93,7 @@ export default function HomeClient({ currentUser }) {
             encryption — all in one place.
           </p>
 
-          <Link href="/dashboard">
+          <Link href={!currentUser ? "/signup" : "/dashboard"}>
             <Button
               size="lg"
               className="mt-4 bg-primary-a20 hover:bg-primary-a10 text-surface-a0"
@@ -165,9 +165,9 @@ export default function HomeClient({ currentUser }) {
               desc: "Only you can access your passwords; even we can’t see them.",
             },
             {
-              icon: <Smartphone className="w-10 h-10 mb-3 text-primary-a20" />,
-              title: "Cross-Device Sync",
-              desc: "Your passwords sync instantly across your devices.",
+              icon: <Bell className="w-10 h-10 mb-3 text-primary-a20" />,
+              title: "Email Notifications",
+              desc: "Stay informed with instant email alerts for important account and security activities.",
             },
             {
               icon: <Server className="w-10 h-10 mb-3 text-primary-a20" />,
@@ -193,6 +193,77 @@ export default function HomeClient({ currentUser }) {
         </div>
       </section>
 
+      {/* Premium Section */}
+      <motion.section
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="mt-18 mb-32 max-w-6xl w-full px-6"
+      >
+        <div className="bg-surface-tonal-a10/70 backdrop-blur-xl border border-primary-a20/30 rounded-2xl p-10 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-primary-a20 mb-4">
+            Unlock Premium Access 🔓
+          </h2>
+
+          <p className="text-dark-a0 max-w-2xl mx-auto mb-10">
+            Upgrade to Premium and enjoy unlimited password storage, exclusive
+            admin support, and enhanced control over your vault.
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-10">
+            {/* Feature 1 */}
+            <div className="p-6 rounded-xl bg-surface-a10 border border-primary-a20/20">
+              <KeyRound className="w-10 h-10 mb-3 mx-auto text-primary-a20" />
+              <h3 className="text-lg font-semibold text-primary-a20 mb-2">
+                Unlimited Logins
+              </h3>
+              <p className="text-sm text-dark-a0">
+                Free users can save up to <b>3 logins</b>. Premium users can
+                store unlimited credentials securely.
+              </p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="p-6 rounded-xl bg-surface-a10 border border-primary-a20/20">
+              <Shield className="w-10 h-10 mb-3 mx-auto text-primary-a20" />
+              <h3 className="text-lg font-semibold text-primary-a20 mb-2">
+                Priority Security
+              </h3>
+              <p className="text-sm text-dark-a0">
+                Get enhanced protection, priority updates, and premium-level
+                security features.
+              </p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="p-6 rounded-xl bg-surface-a10 border border-primary-a20/20">
+              <Bell className="w-10 h-10 mb-3 mx-auto text-primary-a20" />
+              <h3 className="text-lg font-semibold text-primary-a20 mb-2">
+                Admin Chat Access
+              </h3>
+              <p className="text-sm text-dark-a0">
+                Only <b>Premium users</b> can directly chat with Admin for
+                support and assistance.
+              </p>
+            </div>
+          </div>
+
+          {/* CTA */}
+          {!currentUser?.payment.isPremiumUser && (
+            <div className="flex justify-center">
+              <PremiumButton />
+            </div>
+          )}
+
+          {currentUser?.payment.isPremiumUser && (
+            <p className="text-primary-a20 font-semibold">
+              🌟 You are already a Premium user
+            </p>
+          )}
+        </div>
+      </motion.section>
+
       {/* CTA Section */}
       <motion.section
         initial={{ opacity: 0, y: 30 }}
@@ -207,7 +278,15 @@ export default function HomeClient({ currentUser }) {
         <p className="text-dark-a0 mt-3">
           Create your free vault and never worry about password leaks again.
         </p>
-        <Link href="/signup">
+        <Link
+          href={
+            !currentUser
+              ? "/signup"
+              : currentUser.payment.isPremiumUser
+              ? "/dashboard?type=premium"
+              : "/dashboard?type=free"
+          }
+        >
           <Button className="mt-6 bg-primary-a20 hover:bg-primary-a10 text-surface-a0">
             Create Your Vault
           </Button>
