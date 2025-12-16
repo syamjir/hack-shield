@@ -1,5 +1,6 @@
 import Chat from "@/components/ui/Chat";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 async function getLoggedUser(jwt: string) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/user`, {
@@ -29,7 +30,10 @@ export default async function UserChatPage() {
       );
     }
     const data = await getLoggedUser(jwt);
-    console.log("roomid:", data.data._id);
+    // check user is premium to access chat
+    if (!data.data?.payment?.isPremiumUser) {
+      redirect("/dashboard");
+    }
     return <Chat roomId={data.data._id} sender="user" reciever="Admin" />;
   } catch (err) {
     console.error("Error loading chat:", err);
