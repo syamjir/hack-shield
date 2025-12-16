@@ -48,7 +48,7 @@ export function SecurityClient() {
       </div>
 
       {/* ===== SECURITY SETTINGS ===== */}
-      <motion.div
+      {/* <motion.div
         className="bg-[var(--surface-a10)] border border-[var(--surface-a20)] rounded-xl p-6 shadow-sm"
         whileHover={{ scale: 1.02 }}
       >
@@ -80,10 +80,10 @@ export function SecurityClient() {
         >
           <RefreshCcw className="w-4 h-4" /> Run Security Check
         </Button>
-      </motion.div>
+      </motion.div> */}
 
       {/* ===== SECURITY ALERTS ===== */}
-      <motion.div
+      {/* <motion.div
         className="bg-[var(--surface-a10)] border border-[var(--surface-a20)] rounded-xl p-6 shadow-sm"
         whileHover={{ scale: 1.01 }}
       >
@@ -114,7 +114,7 @@ export function SecurityClient() {
             </Button>
           </li>
         </ul>
-      </motion.div>
+      </motion.div> */}
     </>
   );
 }
