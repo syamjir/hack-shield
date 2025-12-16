@@ -12,3 +12,18 @@ export async function logout() {
   if (!res.ok) throw new Error(data.error || "Something went wrong");
   return data;
 }
+
+export async function getCurrentUser() {
+  const res = await fetch(`/api/user`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) throw new Error(data.error || "Something went wrong");
+  return data;
+}
