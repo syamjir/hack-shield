@@ -19,11 +19,11 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { DashboardProvider } from "@/contexts/DashboardContext";
 import { useUserContext } from "@/contexts/UserContext";
 import { useAutoLock } from "@/hooks/useAutoLock";
-import { logout } from "./serverActions";
+import { getCurrentUser, logout } from "./serverActions";
 import { toast } from "sonner";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
@@ -33,6 +33,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [isLogouting, setIsLogouting] = useState(false);
   const { role, setRole } = useUserContext();
   const { autoLock } = useUserContext();
+  const [isPremiumUser, setIsPremiumUser] = useState(false);
+
+  useEffect(() => {
+    async function retrieveCurrentUser() {
+      const data = await getCurrentUser();
+      const user = data.data;
+      setIsPremiumUser(user.payment.isPremiumUser);
+    }
+    retrieveCurrentUser();
+  }, []);
 
   useAutoLock(autoLock, 1, () => {
     handleLogout();
@@ -64,11 +74,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       href: ["/dashboard/cards"],
       icon: <CreditCard className="w-5 h-5" />,
     },
-    {
+  ];
+  if (isPremiumUser) {
+    navItems.push({
       name: "Chats",
       href: ["/dashboard/chats"],
       icon: <MessageSquare className="w-5 h-5" />,
-    },
+    });
+  }
+  navItems.push(
     {
       name: "Settings",
       href: ["/dashboard/settings"],
@@ -78,8 +92,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       name: "Security",
       href: ["/dashboard/security"],
       icon: <Shield className="w-5 h-5" />,
-    },
-  ];
+    }
+  );
 
   const filteredNavItems =
     role === "Admin"
