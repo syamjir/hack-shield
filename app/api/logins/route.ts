@@ -28,6 +28,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // Check if user is NOT premium and has reached free limit
+    const passwordCount = await Password.countDocuments({ userId });
+
+    if (!user.payment.isPremiumUser && passwordCount >= 3) {
+      return NextResponse.json(
+        {
+          error:
+            "Free users can save only 3 logins. Upgrade to Premium to add more.",
+        },
+        { status: 403 }
+      );
+    }
+
     // Check if the same user already saved the same login credentials
     const existingPassword = await Password.findOne({
       userId,
