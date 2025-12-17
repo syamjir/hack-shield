@@ -11,8 +11,11 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "jsx": "preserve",
+    // "jsx": "preserve",
+    "baseUrl": ".",
     "incremental": true,
+    "jsx": "react-jsx",
+    "types": ["jest", "node"],
     "plugins": [
       {
         "name": "next"
