@@ -7,6 +7,7 @@ on:
     branches: [main]
 
 jobs:
+  # ---------------- TEST JOB ----------------
   test:
     name: Run Tests
     runs-on: ubuntu-latest
@@ -19,7 +20,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: "npm"
+          cache: npm
 
       - name: Install dependencies
         run: npm install
@@ -27,25 +28,51 @@ jobs:
       - name: Run Jest tests
         run: npm test
 
-  # docker:
-  #   name: Build & Push Docker Image
-  #   runs-on: ubuntu-latest
-  #   needs: test # 👈 runs only if tests succeed
+  # ---------------- DOCKER JOB ----------------
+  docker:
+    name: Build & Push Docker Images
+    runs-on: ubuntu-latest
+    needs: test
 
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  #     - name: Login to Docker Hub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
-  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-  #     - name: Build Docker image
-  #       run: |
-  #         docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/hack-shield:latest .
+      # ---------- Web Image ----------
+      - name: Build Web Docker Image
+        # run: |
+        #   docker build \
+        #     -f Dockerfile.web \
+        #     --build-arg NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }} \
+        #     --build-arg NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }} \
+        #     --build-arg NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }} \
+        #     --build-arg NEXT_PUBLIC_RAZORPAY_KEY_ID=${{ secrets.NEXT_PUBLIC_RAZORPAY_KEY_ID }} \
+        #     -t ${{ secrets.DOCKERHUB_USERNAME }}/hack-shield-web:latest \
+        #     .
+        run: |
+          docker build \
+            -f Dockerfile.web \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/hack-shield-web:latest \
+            .
 
-  #     - name: Push Docker image
-  #       run: |
-  #         docker push ${{ secrets.DOCKERHUB_USERNAME }}/hack-shield:latest
+      - name: Push Web Docker Image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/hack-shield-web:latest
+
+       # ---------- Socket Image ----------
+      - name: Build Socket Docker Image
+        run: |
+          docker build \
+            -f Dockerfile.socket \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/hack-shield-socket:latest \
+            .
+
+      - name: Push Socket Docker Image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/hack-shield-socket:latest
