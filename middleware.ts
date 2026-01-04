@@ -2,38 +2,44 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { JwtService } from "./lib/jwtService";
 
+/**
+ * Middleware route matching configuration
+ */
 export const config = {
   matcher: [
-    // Skip Next.js internals and static files
+    // Exclude Next.js internals & static assets
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // API routes
+
+    // Protected API routes
     "/api/password/:path*",
     "/api/logins/:path*",
     "/api/identities/:path*",
     "/api/notes/:path*",
     "/api/cards/:path*",
-    "/api/admin/:path*", // ⬅ NEW ADMIN API PATH
-    // Dashboard paths
+    "/api/admin/:path*",
+
+    // Protected UI routes
     "/dashboard/:path*",
-    "/admin/:path*", // ⬅ ADMIN DASHBOARD PATH
+    "/admin/:path*",
   ],
   runtime: "nodejs",
 };
 
+// Clerk-protected routes
 const isClerkProtected = createRouteMatcher(["/home(.*)", "/auth(.*)"]);
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
-  //
-  // ---------------- Clerk Middleware Logic ----------------
-  //
+  /**
+   * Clerk authentication handling
+   */
   if (isClerkProtected(req)) {
     await auth.protect();
     return;
   }
 
-  //
-  // ---------------- JWT Middleware Logic ----------------
-  //
+  /**
+   * JWT-protected routes
+   */
   const url = req.nextUrl.pathname;
 
   const isProtectedGeneral =
@@ -47,64 +53,53 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
     url.startsWith("/api/auth/logout");
 
   const isAdminRoute =
-    url.startsWith("/admin") || // Admin dashboard UI
-    url.startsWith("/api/admin"); // Admin API
+    url.startsWith("/admin") ||
+    url.startsWith("/api/admin");
 
-  // ---------------- Require JWT for Protected Routes ----------------
   if (isProtectedGeneral || isAdminRoute) {
     const token = req.cookies.get("jwt")?.value;
 
+    // Missing JWT
     if (!token) {
-      // API request
       if (url.startsWith("/api")) {
         return NextResponse.json(
           { error: "Unauthorized. Please log in first." },
           { status: 401 }
         );
       }
-
-      // UI route
       return NextResponse.redirect(new URL("/auth/login", req.url));
     }
 
-    // ---------------- Validate JWT ----------------
     try {
       const jwtService = new JwtService();
       const decoded = await jwtService.decodeJwtToken(token);
-      console.log(decoded);
+
       const userId = decoded.id;
-      const userRole = decoded.role; // EXPECT role IN JWT
+      const userRole = decoded.role;
 
       if (!userId) throw new Error("Invalid token payload");
 
-      //
-      // ---------------- Admin Authorization Logic ----------------
-      //
-      if (isAdminRoute) {
-        if (userRole !== "Admin") {
-          // ❌ Non-admin accesses admin API
-          if (url.startsWith("/api")) {
-            return NextResponse.json(
-              { error: "Forbidden. Admin access only." },
-              { status: 403 }
-            );
-          }
-
-          // ❌ Non-admin accesses admin UI
-          return NextResponse.redirect(new URL("/auth/login", req.url));
+      /**
+       * Admin authorization
+       */
+      if (isAdminRoute && userRole !== "Admin") {
+        if (url.startsWith("/api")) {
+          return NextResponse.json(
+            { error: "Forbidden. Admin access only." },
+            { status: 403 }
+          );
         }
+        return NextResponse.redirect(new URL("/auth/login", req.url));
       }
 
-      //
-      // ---------------- Forward User + Role to API/Pages ----------------
-      //
+      /**
+       * Forward user context
+       */
       const headers = new Headers(req.headers);
       headers.set("userId", userId);
       headers.set("userRole", userRole ?? "User");
 
-      return NextResponse.next({
-        request: { headers },
-      });
+      return NextResponse.next({ request: { headers } });
     } catch (err) {
       console.error("JWT decode failed:", err);
 
@@ -119,8 +114,8 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
     }
   }
 
-  //
-  // ---------------- Default: Allow Everything Else ----------------
-  //
+  /**
+   * Public routes
+   */
   return NextResponse.next();
 });
