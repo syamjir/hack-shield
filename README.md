@@ -63,6 +63,7 @@ Hack Shield is a modern, full‑stack **security‑focused web application** bui
 * MongoDB + Mongoose
 * Socket.IO (real‑time server)
 * JWT Authentication
+* Clerk Authentication
 
 ### Security & Utilities
 
@@ -75,6 +76,7 @@ Hack Shield is a modern, full‑stack **security‑focused web application** bui
 * ESLint
 * Jest & ts‑jest
 * TypeScript
+* dotenv
 
 ---
 
@@ -82,14 +84,23 @@ Hack Shield is a modern, full‑stack **security‑focused web application** bui
 
 ```
 hack-shield/
-├── app/                # Next.js app router
+├── .github/            # GitHub workflows and configurations
+├── .next/              # Next.js build output (auto-generated)
+├── __tests__/          # Test files
+├── app/                # Next.js App Router
 ├── components/         # Reusable UI components
-├── lib/                # Utilities (auth, db, helpers)
+├── contexts/           # React context providers
+├── dist/               # Production build output
+├── hooks/              # Custom React hooks
+├── lib/                # Utilities (auth, DB, helpers)
 ├── models/             # Mongoose models
-├── socket-server.ts    # Socket.IO server
+├── node_modules/       # Dependencies
 ├── public/             # Static assets
-├── styles/             # Global styles
-└── tests/              # Unit & component tests
+├── schemas/            # Validation schemas
+├── server_actions/     # Server-side actions
+├── views/              # Page-level views/layouts
+├── socket-server.ts    # Socket.IO real-time server
+
 ```
 
 ---
@@ -189,14 +200,17 @@ Uses **Jest** and **React Testing Library** for unit and component tests.
 
 ## 📌 Scripts Overview
 
-| Script      | Description                          |
-| ----------- | ------------------------------------ |
-| `dev`       | Start Next.js dev server (Turbopack) |
-| `build`     | Production build                     |
-| `start`     | Start production server              |
-| `socket`    | Build & start Socket.IO server       |
-| `start-all` | Run Next.js + Socket server          |
-| `test`      | Run Jest tests                       |
+| Script         | Description                                                             |
+| -------------- | ----------------------------------------------------------------------- |
+| `dev`          | Starts the Next.js development server using Turbopack for faster builds |
+| `build`        | Creates an optimized production build of the Next.js application        |
+| `start`        | Runs the Next.js production server after a successful build             |
+| `lint`         | Runs ESLint to check code quality and enforce best practices            |
+| `build:socket` | Compiles the Socket.IO TypeScript server into JavaScript (`dist/`)      |
+| `socket`       | Builds and starts the Socket.IO server                                  |
+| `start-all`    | Starts both the Next.js app and the Socket.IO server together           |
+| `test`         | Executes unit and integration tests using Jest                          |
+
 
 ---
 
