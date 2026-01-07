@@ -1,0 +1,13 @@
+# Issue triggered workflow
+
+name: Handle issues                          
+
+on: issues                                   # Trigger when issue events occur
+
+jobs:
+  info-output:                               
+    runs-on: ubuntu-latest                   
+
+    steps:
+      - name: Output event details           
+        run: echo "${{ toJson(github.event) }}"  # Prints full issue event payload
