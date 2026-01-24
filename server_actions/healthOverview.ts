@@ -11,10 +11,14 @@ type PasswordSecuritySummary = {
 export async function getHealthOverView(
   userId: string
 ): Promise<PasswordSecuritySummary[] | []> {
+  // Convert userId string to MongoDB ObjectId for aggregation match
   const id = new mongoose.Types.ObjectId(userId);
+
   const x = await Password.aggregate([
+    // Filter passwords belonging to the given user
     { $match: { userId: id } },
 
+    // Assign numeric scores based on password strength and breach status
     {
       $addFields: {
         strengthScore: {
@@ -31,12 +35,14 @@ export async function getHealthOverView(
       },
     },
 
+    // Calculate final security score per password
     {
       $addFields: {
         passwordSecurityScore: { $add: ["$strengthScore", "$breachPenalty"] },
       },
     },
 
+    // Aggregate overall security metrics for the user
     {
       $group: {
         _id: null,
@@ -48,6 +54,7 @@ export async function getHealthOverView(
       },
     },
 
+    // Derive security percentage and overall password health
     {
       $addFields: {
         totalSecurityScorePercentage: {
@@ -91,6 +98,7 @@ export async function getHealthOverView(
       },
     },
 
+    // Return only the required summary fields
     {
       $project: {
         _id: 0,
@@ -101,6 +109,5 @@ export async function getHealthOverView(
     },
   ]);
 
-  console.log(x);
   return x;
 }
