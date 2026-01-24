@@ -10,12 +10,13 @@ import { revalidatePath } from "next/cache";
 import { connectToMongo } from "@/lib/connectToMongo";
 
 export async function verifyPayment(razorpayResponse: RazorpayResponseType) {
-    await connectToMongo(); 
+  // Ensure database connection before any DB operation
+  await connectToMongo(); 
     
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
     razorpayResponse;
 
-  // 1. Validate signature
+  // Verify Razorpay signature to confirm payment authenticity
   const expectedSignature = crypto
     .createHmac("sha256", process.env.RAZORPAY_TEST_KEY_SECRET!)
     .update(`${razorpay_order_id}|${razorpay_payment_id}`)
@@ -25,9 +26,7 @@ export async function verifyPayment(razorpayResponse: RazorpayResponseType) {
     throw new Error("Invalid Razorpay signature");
   }
 
-  console.log("✔ Payment verified successfully");
-
-  // 2. Get logged user via JWT from cookies
+  // Identify currently logged-in user via JWT cookie
   const cookieStore = await cookies();
   const jwt = cookieStore.get("jwt")?.value;
 
@@ -37,12 +36,12 @@ export async function verifyPayment(razorpayResponse: RazorpayResponseType) {
 
   if (!loggedUser) throw new Error("User not found");
 
-  // 3. Verify orderId matches the user record
+  // Ensure payment order belongs to the logged-in user
   if (loggedUser.payment.orderId !== razorpay_order_id) {
     throw new Error("Order ID mismatch");
   }
 
-  // 4. Update payment state (only if not already premium)
+  // Grant premium access only once
   if (!loggedUser.payment.isPremiumUser) {
     await User.findByIdAndUpdate(loggedUser._id, {
       $set: {
@@ -53,7 +52,7 @@ export async function verifyPayment(razorpayResponse: RazorpayResponseType) {
     });
   }
 
-  // 5. Revalidate & redirect user
+  // Refresh cached content and redirect after successful payment
   revalidatePath("/home");
   redirect("/home");
 }
