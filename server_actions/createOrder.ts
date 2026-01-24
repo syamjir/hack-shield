@@ -7,27 +7,29 @@ import Razorpay from "razorpay";
 import { connectToMongo } from "@/lib/connectToMongo";
 
 export async function createOrder(amount: number) {
+  // Ensure MongoDB connection before DB operations
   await connectToMongo();
 
+  // Validate amount against server-side premium price
   const PREMIUM_AMOUNT = Number(process.env.PREMIUM_AMOUNT);
   if (PREMIUM_AMOUNT !== amount) {
     throw new Error("Incorrect premium amount");
   }
 
-  // 1. Init Razorpay client
+  // Initialize Razorpay client using secret keys
   const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_TEST_KEY_ID!,
     key_secret: process.env.RAZORPAY_TEST_KEY_SECRET!,
   });
 
-  // 2. Create Razorpay Order (in paise)
+  // Create a Razorpay order (amount in paise)
   const order = await razorpay.orders.create({
     amount: amount * 100,
     currency: "INR",
     receipt: `receipt_${Date.now()}`,
   });
 
-  // 3. Get logged user
+  // Identify logged-in user via JWT cookie
   const cookieStore = await cookies();
   const jwt = cookieStore.get("jwt")?.value;
 
@@ -36,7 +38,7 @@ export async function createOrder(amount: number) {
   const { data: loggedUser } = await whoAmI(jwt);
   if (!loggedUser) throw new Error("User not found");
 
-  // 4. If already premium, do NOT recreate order
+  // Prevent order creation if user already has premium access
   if (loggedUser.payment.isPremiumUser) {
     return {
       order: null,
@@ -46,7 +48,7 @@ export async function createOrder(amount: number) {
     };
   }
 
-  // 5. Save orderId & status in MongoDB
+  // Persist Razorpay orderId and mark payment as pending
   const user = await User.findByIdAndUpdate(
     loggedUser._id,
     {
@@ -55,9 +57,10 @@ export async function createOrder(amount: number) {
         "payment.paymentStatus": "PENDING",
       },
     },
-    { new: true } // return updated document
+    { new: true }
   ).lean();
 
+  // Return order details and user contact info to client
   return {
     order,
     userEmail: user?.email,
