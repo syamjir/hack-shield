@@ -1,8 +1,11 @@
 import { z } from "zod";
 
 export const identitySchema = z.object({
+  // Required fields
   fullName: z.string().trim().min(1, { message: "Username is required" }),
   email: z.email({ message: "Invalid email address" }),
+
+  // Optional fields
   phone: z.string().trim().optional(),
   address: z.string().trim().optional(),
   city: z.string().trim().optional(),

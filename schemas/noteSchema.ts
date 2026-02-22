@@ -1,8 +1,11 @@
 import { z } from "zod";
 
 export const noteSchema = z.object({
+  // Required fields
   title: z.string().trim().min(1, { message: "Title is required" }),
   content: z.string().trim().min(1, { message: "Content cannot be empty" }),
+
+  // Optional fields
   tags: z.array(z.string().trim()).optional(),
 });
 
