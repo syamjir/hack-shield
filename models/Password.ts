@@ -20,67 +20,86 @@ export interface IPassword extends Document {
 
 const PasswordSchema: Schema<IPassword> = new Schema(
   {
+    // Reference to owning user
     userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
+
     site: {
       type: String,
       required: true,
     },
+
     username: {
       type: String,
       required: true,
     },
+
+    // Encrypted password (hidden by default)
     password: {
       type: String,
       required: true,
       select: false,
     },
+
     iv: {
       type: String,
     },
+
     strength: {
       type: String,
       enum: ["Weak", "Medium", "Strong"],
       required: true,
     },
+
     websiteUri: {
       type: String,
     },
+
+    // Soft delete & breach tracking
     isDeleted: {
       type: Boolean,
       default: false,
     },
+
     isBreached: {
       type: Boolean,
       default: false,
     },
+
     deletedAt: {
       type: Date,
     },
   },
-  { timestamps: true }
+  { timestamps: true } // Adds createdAt & updatedAt
 );
 
-// hash password before save
+// Encrypt password before saving
 PasswordSchema.pre("save", function (next) {
   if (!this.isModified("password")) return next();
+
   const { encrypted, iv } = CryptoService.encrypt(this.password);
   console.log(iv);
+
   this.password = encrypted;
   this.iv = iv;
+
   next();
 });
 
-// 🔐 Compare password for check same login credentials
-PasswordSchema.methods.comparePassword = function (password: string): boolean {
+// Compare encrypted password
+PasswordSchema.methods.comparePassword = function (
+  password: string
+): boolean {
   return CryptoService.compareData(password, this.password, this.iv);
 };
 
-// Decrypted password
-PasswordSchema.methods.decryptPassword = function (password: string): string {
+// Decrypt password
+PasswordSchema.methods.decryptPassword = function (
+  password: string
+): string {
   if (!this.iv) throw new Error("IV is missing");
   return CryptoService.decrypt(password, this.iv);
 };

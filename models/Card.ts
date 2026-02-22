@@ -7,7 +7,7 @@ export interface ICard extends Document {
   bank: string;
   cardNumber: string;
   lastFour: string;
-  brand?: string; // Visa, MasterCard, etc.
+  brand?: string;
   expiryMonth: number;
   expiryYear: number;
   cvv: string;
@@ -77,38 +77,32 @@ const CardSchema: Schema<ICard> = new Schema(
       type: Boolean,
       default: false,
     },
-    ivCard: {
-      type: String,
-    },
-    ivCvv: {
-      type: String,
-    },
-    deletedAt: {
-      type: Date,
-    },
+    ivCard: String,
+    ivCvv: String,
+    deletedAt: Date,
   },
   { timestamps: true }
 );
 
-// hash card number and cvv before save
+// Encrypt sensitive fields before saving
 CardSchema.pre("save", function (next) {
   if (this.isModified("cardNumber")) {
-    // save lastFour 1st
     this.lastFour = this.cardNumber.slice(-4);
-    // encrypt card number
     const { encrypted, iv } = CryptoService.encrypt(this.cardNumber);
     this.cardNumber = encrypted;
     this.ivCard = iv;
   }
+
   if (this.isModified("cvv")) {
     const { encrypted, iv } = CryptoService.encrypt(this.cvv);
     this.cvv = encrypted;
     this.ivCvv = iv;
   }
+
   next();
 });
 
-// Decrypt methods
+// Decryption methods
 CardSchema.methods.getDecryptedCardNumber = function (): string {
   if (!this.ivCard) throw new Error("IV is missing");
   return CryptoService.decrypt(this.cardNumber, this.ivCard);
@@ -119,7 +113,7 @@ CardSchema.methods.getDecryptedCVV = function (): string {
   return CryptoService.decrypt(this.cvv, this.ivCvv);
 };
 
-// 🔐 Compare cardNumber for check same card credentials
+// Compare encrypted card number
 CardSchema.methods.compareCard = function (cardNumber: string): boolean {
   return CryptoService.compareData(cardNumber, this.cardNumber, this.ivCard);
 };

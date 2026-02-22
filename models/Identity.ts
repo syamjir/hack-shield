@@ -21,16 +21,19 @@ export interface IIdentity extends Document {
 
 const IdentitySchema: Schema<IIdentity> = new Schema(
   {
+    // Reference to owning user
     userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
+
     fullName: {
       type: String,
       required: true,
       trim: true,
     },
+
     email: {
       type: String,
       required: true,
@@ -38,41 +41,21 @@ const IdentitySchema: Schema<IIdentity> = new Schema(
       lowercase: true,
       trim: true,
     },
-    phone: {
-      type: String,
-      trim: true,
-    },
-    city: {
-      type: String,
-      trim: true,
-    },
-    state: {
-      type: String,
-      trim: true,
-    },
-    postalCode: {
-      type: String,
-      trim: true,
-    },
-    address: {
-      type: String,
-      trim: true,
-    },
-    company: {
-      type: String,
-      trim: true,
-    },
-    notes: {
-      type: String,
-      trim: true,
-    },
-    country: {
-      type: String,
-      trim: true,
-    },
+
+    phone: { type: String, trim: true },
+    address: { type: String, trim: true },
+    city: { type: String, trim: true },
+    state: { type: String, trim: true },
+    postalCode: { type: String, trim: true },
+    country: { type: String, trim: true },
+    company: { type: String, trim: true },
+    notes: { type: String, trim: true },
+
     dateOfBirth: {
       type: String,
     },
+
+    // Soft delete support
     isDeleted: {
       type: Boolean,
       default: false,
@@ -81,7 +64,7 @@ const IdentitySchema: Schema<IIdentity> = new Schema(
       type: Date,
     },
   },
-  { timestamps: true }
+  { timestamps: true } // Automatically manages createdAt & updatedAt
 );
 
 const Identity: Model<IIdentity> =
