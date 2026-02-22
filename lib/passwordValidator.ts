@@ -1,6 +1,10 @@
 export default class PasswordValidator {
-  calculateStrength(password: string): "Weak" | "Medium" | "Strong" {
+  // Calculate password strength based on character diversity
+  calculateStrength(
+    password: string
+  ): "Weak" | "Medium" | "Strong" {
     let score = 0;
+
     if (password.length >= 8) score++;
     if (/[a-z]/.test(password)) score++;
     if (/[A-Z]/.test(password)) score++;
@@ -12,6 +16,7 @@ export default class PasswordValidator {
     return "Strong";
   }
 
+  // Validate HTTP/HTTPS URL
   isValidUri(uri: string): boolean {
     try {
       const url = new URL(uri);

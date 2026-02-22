@@ -15,6 +15,7 @@ class SmsService {
     this.purpose = purpose;
   }
 
+  // Generate OTP message based on purpose
   private createMessage(): string {
     const otpMessages = {
       signup: (otp: string) =>
@@ -34,10 +35,9 @@ class SmsService {
     return messageFn ? messageFn(this.otp) : `Your OTP is ${this.otp}`;
   }
 
+  // Prepare request body for Fast2SMS API
   private makeBodyOtpSms() {
     return JSON.stringify({
-      //   route: "v3",
-      //   sender_id: "TXTIND",
       route: "q",
       message: this.createMessage(),
       language: "english",
@@ -45,18 +45,23 @@ class SmsService {
     });
   }
 
+  // Send SMS using Fast2SMS
   async sendSms() {
-    const response = await fetch("https://www.fast2sms.com/dev/bulkV2", {
-      method: "POST",
-      headers: {
-        authorization: this.FAST2SMS_API_KEY,
-        "Content-Type": "application/json",
-      },
-      body: this.makeBodyOtpSms(),
-    });
+    const response = await fetch(
+      "https://www.fast2sms.com/dev/bulkV2",
+      {
+        method: "POST",
+        headers: {
+          authorization: this.FAST2SMS_API_KEY,
+          "Content-Type": "application/json",
+        },
+        body: this.makeBodyOtpSms(),
+      }
+    );
 
     const data = await response.json();
     console.log(data);
+
     return data;
   }
 }

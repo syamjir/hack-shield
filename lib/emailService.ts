@@ -21,6 +21,7 @@ class EmailService {
     this.from = `PassKeeper <${process.env.GMAIL_USER}>`;
   }
 
+  // Configure mail transport
   private newTransport() {
     return nodemailer.createTransport({
       service: "gmail",
@@ -31,6 +32,7 @@ class EmailService {
     });
   }
 
+  // Render template and send email
   private async sendMailToUser(
     template: string,
     subject: string,
@@ -43,6 +45,7 @@ class EmailService {
       "email",
       `${template}.pug`
     );
+
     const html = pug.renderFile(templatePath, {
       firstName: this.firstName,
       otp: this.otp,
@@ -63,6 +66,7 @@ class EmailService {
     await this.newTransport().sendMail(mailOptions);
   }
 
+  // Send OTP for signup
   async sendSignupVerificationOtp() {
     await this.sendMailToUser(
       "verificationOtp",
@@ -70,6 +74,8 @@ class EmailService {
       "signup"
     );
   }
+
+  // Send OTP for login
   async sendLoginVerificationOtp() {
     await this.sendMailToUser(
       "verificationOtp",
@@ -77,16 +83,21 @@ class EmailService {
       "login"
     );
   }
+
+  // Notify user about password change
   async sendPasswordChangeEmail() {
     await this.sendMailToUser(
       "passwordChange",
       "Your PassKeeper password was recently changed"
     );
   }
+
+  // Send notification email to multiple users
   async sendNotificationToAllUsers(subject: string, message: string) {
     await this.sendMailToUser("notification", subject, message);
   }
-  //TODO add reset and verify functions
+
+  // TODO: Add reset & verification email methods
 }
 
 export default EmailService;

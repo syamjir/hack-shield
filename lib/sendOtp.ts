@@ -2,6 +2,7 @@ import { IUser } from "@/models/User";
 import EmailService from "./emailService";
 import SmsService from "./smsService";
 
+// Send OTP via selected 2FA method
 export async function sendOtp(
   user: IUser,
   purpose: "signup" | "login" | "reset" | "verify",
@@ -12,12 +13,14 @@ export async function sendOtp(
 
   if (twoFactorMethod === "email") {
     const mailService = new EmailService(user, code);
+
     if (purpose === "signup") {
       await mailService.sendSignupVerificationOtp();
     } else if (purpose === "login") {
       await mailService.sendLoginVerificationOtp();
     }
-    //TODO reset and verify functionality
+
+    // TODO: Implement reset & verify email functionality
   } else if (twoFactorMethod === "phone") {
     const smsService = new SmsService(user.phone, code, purpose);
     await smsService.sendSms();

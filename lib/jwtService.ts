@@ -9,10 +9,14 @@ export class JwtService {
     this.user = user;
   }
 
+  // Generate login JWT
   private signInToken() {
-    console.log("User role is:", this.user?.role);
     return jwt.sign(
-      { id: this.user?._id, email: this.user?.email, role: this.user?.role },
+      {
+        id: this.user?._id,
+        email: this.user?.email,
+        role: this.user?.role,
+      },
       process.env.JWT_SECRET as jwt.Secret,
       {
         expiresIn: process.env.JWT_EXPIRES_IN,
@@ -20,6 +24,7 @@ export class JwtService {
     );
   }
 
+  // Generate short-lived OTP token
   generateOtpToken() {
     return jwt.sign(
       { id: this.user?._id },
@@ -30,12 +35,15 @@ export class JwtService {
     );
   }
 
-  createSendToken(message = "2FA verified — login successful"): NextResponse {
+  // Send login response with JWT cookie
+  createSendToken(
+    message = "2FA verified — login successful"
+  ): NextResponse {
     const token = this.signInToken();
 
     const response = NextResponse.json(
       {
-        message: message,
+        message,
         token,
         role: this.user?.role,
         preference: this.user?.preference,
@@ -43,34 +51,39 @@ export class JwtService {
       },
       { status: 200 }
     );
+
     response.cookies.set("jwt", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      // sameSite: "strict",
       path: "/",
-      maxAge: Number(process.env.JWT_COOKIE_EXPIRES_IN) * 24 * 60 * 60,
+      maxAge:
+        Number(process.env.JWT_COOKIE_EXPIRES_IN) * 24 * 60 * 60,
     });
 
     return response;
   }
-  createSendLogOutToken(message = "logout successful"): NextResponse {
+
+  // Clear JWT cookie (logout)
+  createSendLogOutToken(
+    message = "logout successful"
+  ): NextResponse {
     const response = NextResponse.json(
-      {
-        message: message,
-      },
+      { message },
       { status: 200 }
     );
+
     response.cookies.set("jwt", "logout", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      // sameSite: "strict",
       path: "/",
-      maxAge: Number(process.env.JWT_COOKIE_EXPIRES_IN) * 24 * 60 * 60,
+      maxAge:
+        Number(process.env.JWT_COOKIE_EXPIRES_IN) * 24 * 60 * 60,
     });
 
     return response;
   }
 
+  // Verify and decode JWT
   async decodeJwtToken(
     token: string
   ): Promise<{ id: string; email?: string; role: "User" | "Admin" }> {
@@ -88,6 +101,7 @@ export class JwtService {
             email: string;
             role: "User" | "Admin";
           };
+
           resolve({
             id: payload.id,
             email: payload?.email,
