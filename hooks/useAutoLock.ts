@@ -9,13 +9,13 @@ export function useAutoLock(
 ) {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Reset the inactivity timer
+  // Reset inactivity timer
   const resetTimer = () => {
     if (timerRef.current) clearTimeout(timerRef.current);
 
     if (enabled) {
       timerRef.current = setTimeout(() => {
-        onLock(); // lock the app
+        onLock(); // Trigger lock callback
       }, timeoutMinutes * 60 * 1000);
     }
   };
@@ -23,20 +23,26 @@ export function useAutoLock(
   useEffect(() => {
     if (!enabled) return;
 
-    // User activity events
-    const activityEvents = ["mousemove", "keydown", "click", "touchstart"];
+    // Track user activity
+    const activityEvents = [
+      "mousemove",
+      "keydown",
+      "click",
+      "touchstart",
+    ];
 
     activityEvents.forEach((event) =>
       window.addEventListener(event, resetTimer)
     );
 
-    // Start timer initially
+    // Initialize timer
     resetTimer();
 
     return () => {
       activityEvents.forEach((event) =>
         window.removeEventListener(event, resetTimer)
       );
+
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, [enabled, timeoutMinutes]);

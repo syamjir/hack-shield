@@ -16,24 +16,16 @@ export function useChatSocket(roomId: string) {
   const pathname = usePathname();
 
   useEffect(() => {
+     // Initialize socket connection
     socketRef.current = io("http://localhost:4000", {
       transports: ["websocket", "polling"],
     });
-
-    // io() ->Create Socket.IO client instance
-    // The path option tells the client where the Socket.IO server is listening.
-    // Server: http://localhost:3000/api/socket  <-- Socket.IO server endpoint
-    //socketRef.current = {
-    //   "id": "dajh3hda9s",
-    //   "connected": true,
-    //   "emit": [Function],
-    //   "on": [Function]
-    // } instance of socket.io client
 
     socketRef.current.on("connect_error", (err) =>
       console.error("WS Error:", err)
     );
 
+    // Join chat room and request online users
     socketRef.current.emit("join_room", roomId);
     socketRef.current.emit("online-users");
 
@@ -68,10 +60,12 @@ export function useChatSocket(roomId: string) {
       setMessages((prev) => prev.map((m) => ({ ...m, read: true })));
     });
 
+    // Cleanup on unmount
     return () => socketRef.current.disconnect();
   }, [roomId]);
 
   useEffect(() => {
+    // Disconnect when route changes
     return () => {
       console.log("Component unmounted, disconnecting socket");
       socketRef.current?.disconnect();
